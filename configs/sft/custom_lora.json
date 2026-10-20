@@ -1,0 +1,14 @@
+{
+  "status": "small custom-data workflow template, not a paper reproduction",
+  "expected_records": null,
+  "effective_batch_size": 32,
+  "config": {
+    "stage": "sft", "do_train": true, "finetuning_type": "lora",
+    "lora_rank": 8, "lora_target": "all", "template": "qwen3_vl",
+    "num_train_epochs": 3.0, "per_device_train_batch_size": 1,
+    "gradient_accumulation_steps": 8, "learning_rate": 0.00001,
+    "bf16": true, "gradient_checkpointing": true, "cutoff_len": 2048,
+    "seed": 42, "report_to": "none", "logging_steps": 10,
+    "save_steps": 500, "overwrite_output_dir": false
+  }
+}

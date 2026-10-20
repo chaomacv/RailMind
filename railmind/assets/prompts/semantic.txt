@@ -1,0 +1,4 @@
+Analyze this railway image. Scenes: steel_bridge, rail_track, environment, catenary_pole, noise_barrier, power_tower.
+Identify supported visible anomalies only: nest, nonut, rustyfence, rustypaint, peeling, noclip, snappedclip, debris, plastic, rustypole, agedcement, rustyplate, loosenut.
+Return only JSON: {"scene":"canonical scene", "anomaly_classes":["canonical category"], "evidence":"brief visible evidence", "risk":"cautious potential risk"}.
+Use an empty category list if no supported anomaly is observed. Do not output coordinates. Do not include categories merely mentioned as possibilities.

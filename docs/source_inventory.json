@@ -1,0 +1,45 @@
+{
+  "benchmark": {
+    "source": "agent/RailwayCARS/dataset/val/810_test_modified/annotations_coco.json",
+    "source_sha256": "30ab1d5c2a93a69e729064b4e3800f86d0410b8a76b731fbdb314d896a71f5d4",
+    "coco_records": 820,
+    "annotations": 2083,
+    "disk_images": 820,
+    "missing_images": 0,
+    "scenes": {
+      "noise_barrier": 227,
+      "catenary_pole": 11,
+      "environment": 128,
+      "rail_track": 88,
+      "steel_bridge": 275,
+      "power_tower": 91
+    },
+    "original_810_derivation": "Explicit subset image IDs <=810; original historic annotation file not independently recovered",
+    "original_810_count": 810,
+    "extra_scene_counts": {
+      "catenary_pole": 10
+    }
+  },
+  "training": {
+    "server_sft": {
+      "source": "agent/qwen_vl/data/qwen_sft_mixed_24265_noenc.json",
+      "records": 24265,
+      "sha256": "923029e6cbdd1969ace512403d2dbdc08f40b8f24e7b3313fb7e693c22f36f05"
+    },
+    "portable_sft": {
+      "source": "railmind_training_repro_20260815/qwen3vl/data/qwen_sft_mixed_24265_portable.json",
+      "records": 24265,
+      "sha256": "ce113868681231b205d86f31fd9cd829d5e67cc970ad61fd0620c2f3bbc50e54"
+    },
+    "dino_train2": {
+      "source": "agent/RailwayCARS/dataset/train/3334_train2_with_nest_noclip/annotations_converted.jsonl",
+      "images": 3334,
+      "instances": 10613,
+      "sha256": "dc5c355e8fccad76c741d592594e647b551c4d2323c4c9f90359d08dfb22963c"
+    }
+  },
+  "historical_railway_rl_launch_recovered": false,
+  "paper_identity": "RailMind: Multimodal Reasoning for Railway Infrastructure Security (13-page user-supplied draft)",
+  "audit_date": "2026-10-07",
+  "publication_status": "source-only publication; all training and evaluation datasets withheld"
+}
