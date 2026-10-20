@@ -1,104 +1,63 @@
-# RailMind
+# RailMind：铁路图像分析、缺陷定位与训练复现
 
-**Multimodal reasoning and visual grounding for railway infrastructure inspection.**
+本仓库围绕论文 **RailMind: Multimodal Reasoning for Railway Infrastructure Security**，将服务器上的研究代码整理为一个独立项目。
 
-[中文指南](README.zh-CN.md) · [Workflow](docs/01_workflow.md) · [SFT/RL skill map](docs/09_sft_rl_skills_and_community.md) · [post-training paper roadmap](docs/10_post_training_paper_roadmap.md) · [Reproducibility](docs/08_reproducibility.md) · [Source inventory](docs/source_inventory.json)
+核心分工：**Qwen3-VL 负责识别缺陷类别、解释可见证据；GroundingDINO 负责精确定位。** Gemini 等教师模型生成领域监督数据，NanoBanana 根据背景图和缺陷参考图增强长尾数据；SFT 后可选择 GRPO/GSPO 强化类别一致性。
 
-RailMind separates **what is wrong** from **where it is**: a railway-adapted Qwen3-VL model predicts anomaly categories and visible evidence; a fine-tuned GroundingDINO detector provides spatial localization. A teacher data engine and scene-aligned NanoBanana augmentation supply training data, with optional category-reward RL after SFT.
+## 从这里开始
 
-This repository is a curated research release, not a copy of the experiment server. It includes portable data tools, prompts, reviewed-data exports, training recipes, source-matched framework snapshots and explicit evaluation protocols. It does not ship private data or model weights.
-
-```mermaid
-flowchart LR
-  A[Real train images] --> B[Teacher annotation]
-  A --> C[Scene-aligned NanoBanana synthesis]
-  C --> D[Visual review and verified labels]
-  D --> B
-  B --> E[Review and SFT]
-  D --> F[Optional GRPO or GSPO]
-  E --> F
-  G[Human box annotations] --> H[GroundingDINO training]
-  F --> I[Qwen semantic prediction]
-  I --> J[Language-conditioned grounding]
-  H --> J
-  J --> K[Classification and detection evaluation]
-```
-
-## Quick Start: No GPU Or API Key
-
-Run from the cloned repository, using Python 3.10 or newer:
+在仓库根目录，用 Python 3.10 及以上版本：
 
 ```bash
 python -m venv .venv
 source .venv/bin/activate
 python -m pip install -e .
-railmind demo --output outputs/demo
+python -m railmind demo --output outputs/demo
 python -m unittest discover -s tests -v
 python scripts/check_release.py
 ```
 
-The demo builds two procedural schematic images, a hashed manifest, mock teacher/review records, SFT/RL exports, augmentation tasks and detection metrics. It makes **no API calls** and performs **no training**. Its scores are fixture checks, not research results. Use a fresh output directory when rerunning.
+这个样例不需要 GPU、模型权重或 API Key。它验证图像清单、审核、SFT/RL 数据导出、增强计划和评测流程。图像是程序生成的示意样例，输出指标不是论文结果。
 
-The core package has no third-party runtime dependencies. `python -m railmind` also works directly from the source checkout. Pillow is optional for downloading and inspecting generated images; GPU training uses separate framework environments.
+## 完整研究流程
 
-## Use Your Own Data
+| 阶段 | 输入 | 输出 | 文档 |
+|---|---|---|---|
+| 数据准备 | 图像、COCO 人工标注 | 带 split 和 SHA256 的统一 manifest | [数据规范](docs/02_data.md) |
+| 教师数据引擎 | 训练图像、铁路知识提示词 | 场景、类别、可见证据、风险描述 | [大模型标注](docs/03_data_engine.md) |
+| 数据增强 | 同场景背景与缺陷参考图 | 合成图像、生成记录、待审核标签 | [NanoBanana](docs/04_augmentation.md) |
+| 审核与训练 | 通过审核的文本或框标注 | Qwen SFT 数据、DINO ODVG/COCO 数据 | [SFT 与检测器](docs/05_training.md) |
+| 可选 RL | 合成图像的人工确认类别 | GRPO/GSPO 后训练模型 | [强化学习](docs/06_rl.md) |
+| 联合推理 | 图像、Qwen 类别输出 | GroundingDINO 像素坐标检测框 | [推理与评测](docs/07_evaluation.md) |
+| 实验比较 | 固定测试集与协议 | 分类/检测、消融和失败案例结果 | [复现边界](docs/08_reproducibility.md) |
+| 知识板块 | SFT/RL 后训练、社区工具链、常见风险 | 面向复用者的学习路线与工程清单 | [SFT/RL 技能图谱](docs/09_sft_rl_skills_and_community.md) |
+| 论文路线 | 经典与最新后训练论文、曲线解读、调参方法 | 从“会跑”到“会判断训练”的补课路径 | [后训练论文路线](docs/10_post_training_paper_roadmap.md) |
 
-1. Build manifests with explicit train/val/test splits: [Data](docs/02_data.md).
-2. Generate and review teacher annotations: [Data engine](docs/03_data_engine.md).
-3. Generate scene-aligned synthetic defects and verify the results: [NanoBanana](docs/04_augmentation.md).
-4. Export reviewed SFT and box-supervised datasets, then train both components: [Training](docs/05_training.md).
-5. Optionally export verified synthetic category labels and apply RL: [RL](docs/06_rl.md).
-6. Run semantic prediction, grounding and evaluation: [Inference and evaluation](docs/07_evaluation.md).
-7. Use the post-training skill map to understand SFT/RL concepts, community tooling and common failure modes: [SFT/RL skill map](docs/09_sft_rl_skills_and_community.md).
-8. Read the paper roadmap and curve-reading guide before tuning LR, KL, batch size or rollout settings: [post-training paper roadmap](docs/10_post_training_paper_roadmap.md).
+已有训练图像可以直接进入教师标注流程；已有人工框标注可以进入检测器训练。合成图像先审核，再进入 SFT/RL。生成时指定的目标类别不自动等于真实标签。
 
-All API and training commands default to **dry-run**. Add `--execute` only when the configured service/environment is ready. Secrets are read from environment variables. API outputs remain unapproved until an explicit review decision is applied.
+## 810 与 820 已核对
 
-## Dataset Versions: 820 Is Present
+服务器的 `810_test_modified` 目录实际已有 **820 张图像、820 条 COCO 图像记录、2,083 个实例标注**，所有图像引用均存在。六个场景的数量与论文一致，最后增加的 10 张是接触网杆图像。
 
-The server directory named `810_test_modified` actually contains **820 image files**, **820 COCO image records** and **2,083 instance annotations**, with no missing referenced images. Scene counts match the manuscript: steel bridge 275, rail track 88, environment 128, catenary pole 11, noise barrier 227, power tower 91. Image IDs 811-820 are ten additional catenary-pole images.
+因此本仓库按实测的 **820 版本**记录当前基准，同时说明如何显式派生原 810 ID 子集。没有改动服务器原始数据，也不根据文件夹名称隐式删掉 10 张图像。证据在 [source_inventory.json](docs/source_inventory.json)。
 
-Use the full 820-image manifest for the documented benchmark. An explicit 810-ID subset can be derived for comparison, but its historical annotation version was not independently recovered. Never select a test set based on its folder name. Keep subset IDs and annotation hashes with every result.
+## 两套 SFT 实验不要混用
 
-## Experiment Profiles
+- 论文：2,264 + 5,497 + 13,170 = **20,931** 条描述监督数据。
+- 服务器后续混合训练：额外加入 **3,334** 条检测框输出样本，总计 **24,265**。
+- GroundingDINO：以 3,334 张 train2 图像为主，保留实际源码和配置。
+- RL：论文写明 3,134 个提示、16 个 rollout；当前没有恢复到原铁路专用启动脚本，发布的是明确标记的重建配置与类别奖励插件。
 
-| Profile | Data | Status |
-|---|---|---|
-| Manuscript Qwen SFT | 20,931 instruction samples | Reconstructed recipe; exact historical launch missing |
-| Server Qwen LoRA SFT | 24,265 samples, including 3,334 box-output samples | Adapted from offline reproduction bundle |
-| Detector train2 | 3,334 images | Source-matched training code and config |
-| Manuscript RL | 3,134 prompts, 16 generations | Category reward and GRPO/GSPO recipes reconstructed |
+## 发布内容与使用条件
 
-The manuscript and server SFT profiles are **different experiments**. Keep descriptive SFT and direct box-output SFT separate in ablations. A release smoke test does not reproduce the manuscript tables. See [known gaps](docs/08_reproducibility.md).
+本仓库提供新的统一 CLI、教程、配置、提示词、必要训练框架源码快照及测试。原始图像、权重、加密文件、聊天记录、网站账号和 API Key 不进入源代码发布包。需要真实训练数据时，另行获取授权的数据或已有的私有复现包。
 
-## Layout
+API 和训练命令默认只检查和展示参数，加 `--execute` 才实际调用。CPU 样例与回归测试已作为发布验证目标；GPU 训练、真实增强 API 和论文指标复现需在相应环境中执行，不能由离线样例代替。
 
-```text
-railmind/       CLI, schemas, API adapter, augmentation, exports, rewards, evaluation
-configs/        Separate SFT/RL profiles and source-matched detector config
-prompts/        Teacher, semantic and 13 defect-generation prompts
-training/       ms-swift category-reward plugin
-third_party/    Selected source snapshots, licenses and per-file hashes
-docs/           End-to-end guides, audit evidence and reproducibility boundaries
-tests/          CPU regression tests, including leakage and malformed outputs
-scripts/        Release assembly and payload checks
-.env.example    Credential-free environment template
-```
+旧 `network_app0.11` 网站不是论文训练主线，也没有搬入包含账号和密钥的旧目录；远端调用通过新的环境变量配置接入。`bank`、`huawei` 等独立项目不属于本仓库。
 
-## Paper And Citation
+阅读顺序：[流程](docs/01_workflow.md) → [数据](docs/02_data.md) → [标注](docs/03_data_engine.md) → [增强](docs/04_augmentation.md) → [训练](docs/05_training.md) → [RL](docs/06_rl.md) → [评测](docs/07_evaluation.md) → [SFT/RL 技能图谱](docs/09_sft_rl_skills_and_community.md) → [后训练论文路线](docs/10_post_training_paper_roadmap.md)。
 
-This release corresponds to the user-supplied draft *RailMind: Multimodal Reasoning for Railway Infrastructure Security*. The manuscript includes supervised fine-tuning, optional GRPO/GSPO, NanoBanana augmentation, six railway scenes and 13 anomaly categories. Publication status and final bibliography are not asserted by this repository.
+## 数据发布边界
 
-```bibtex
-@misc{railmind_draft,
-  title = {RailMind: Multimodal Reasoning for Railway Infrastructure Security},
-  author = {Ma, Chao and Ren, Zhongwei and Meng, Fanteng and Xu, Jingxuan and Meng, Tong and Ruan, Tao and Tao, Renshuai and Qin, Yong and Wei, Yunchao},
-  note = {Research manuscript; update with the final publication record}
-}
-```
-
-The project license for newly organized code is pending author selection. Third-party licenses are preserved. See [NOTICE](NOTICE.md) and [release checklist](docs/08_reproducibility.md).
-
-## Data publication policy
-
-All training and evaluation datasets are withheld, including images, annotations, generated supervision, manifests, and split/subset ID lists. This repository publishes method code, generic prompts, configuration templates, and documentation only. The offline demo generates fictional fixtures at runtime.
+训练集和评测集均不上传，包括图像、标注、教师监督文本、SFT/RL 样本、manifest 和划分/子集 ID 清单。本仓库仅发布方法代码、通用提示词、配置模板及文档；离线示例在运行时生成虚构样例。
