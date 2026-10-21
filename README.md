@@ -6,6 +6,8 @@
 
 ## 从这里开始
 
+第一次阅读本项目，建议先看 [辅助阅读指南：从目录到完整工作流](docs/00_reading_guide.md)，再进入各阶段教程。
+
 在仓库根目录，用 Python 3.10 及以上版本：
 
 ```bash
@@ -56,7 +58,7 @@ API 和训练命令默认只检查和展示参数，加 `--execute` 才实际调
 
 旧 `network_app0.11` 网站不是论文训练主线，也没有搬入包含账号和密钥的旧目录；远端调用通过新的环境变量配置接入。`bank`、`huawei` 等独立项目不属于本仓库。
 
-阅读顺序：[流程](docs/01_workflow.md) → [数据](docs/02_data.md) → [标注](docs/03_data_engine.md) → [增强](docs/04_augmentation.md) → [训练](docs/05_training.md) → [RL](docs/06_rl.md) → [评测](docs/07_evaluation.md) → [SFT/RL 技能图谱](docs/09_sft_rl_skills_and_community.md) → [后训练论文路线](docs/10_post_training_paper_roadmap.md)。
+阅读顺序：[辅助阅读指南](docs/00_reading_guide.md) → [流程](docs/01_workflow.md) → [数据](docs/02_data.md) → [标注](docs/03_data_engine.md) → [增强](docs/04_augmentation.md) → [训练](docs/05_training.md) → [RL](docs/06_rl.md) → [评测](docs/07_evaluation.md) → [SFT/RL 技能图谱](docs/09_sft_rl_skills_and_community.md) → [后训练论文路线](docs/10_post_training_paper_roadmap.md)。
 
 ## 数据发布边界
 
