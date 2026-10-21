@@ -4,7 +4,7 @@ from .schema import labels, parse_answer
 
 
 def category_reward(completion, solution):
-    """Paper set reward: exact=1, strict superset=0.5, otherwise=0."""
+    """论文类别集合奖励：完全匹配为 1，严格超集为 0.5，其他为 0。"""
     try:
         predicted = set(parse_answer(completion)["anomaly_classes"])
         gt = set(labels(json.loads(solution)["anomaly_classes"]))

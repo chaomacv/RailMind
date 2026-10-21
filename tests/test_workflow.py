@@ -156,7 +156,7 @@ class WorkflowTests(unittest.TestCase):
         from railmind.schema import digest
         path = self.root / "val/steel_bridge/val.png"
         fixture_png(path, False)
-        # Distinct schematic fixture hash, not a claim of real-data split independence.
+        # 使用不同的示意样例哈希，不代表真实数据集已满足划分独立性。
         path.write_bytes(path.read_bytes() + b"validation-fixture")
         val = [dict(self.rows[0], id="val", image="steel_bridge/val.png", split="val", sha256=digest(path))]
         result = data.export_dino(self.rows, val, self.demo / "images", self.root / "val", self.root / "dino")

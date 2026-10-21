@@ -1,27 +1,27 @@
-# Workflow And Module Boundaries
+# 工作流程与模块边界
 
-The research question is whether domain-adapted semantic reasoning plus specialized grounding is more reliable than requiring an MLLM to generate coordinates directly.
+本项目研究：领域适配的语义理解与专用定位模型相结合，是否比直接要求多模态大模型输出坐标更加可靠。
 
-1. Partition real images by acquisition/source group before any teacher annotation or augmentation. Preserve manual category/box annotations separately from model responses.
-2. Generate structured teacher supervision using visible component state, scene context, category definitions and cautious risk descriptions. Review outputs before training.
-3. For augmentation, choose a training background and a training reference with the same scene. Apply the intended defect without changing unrelated geometry or transferring annotations. Verify the image and its actual labels.
-4. Train Qwen on reviewed descriptions, and train the detector on human-reviewed boxes. These are independently optimized components, not one joint end-to-end loss.
-5. Optionally apply category-set RL to the SFT model using verified synthetic labels. Generation intent is insufficient ground truth.
-6. At inference, Qwen returns explicit final categories. The detector receives those categories, not evaluation GT, as its caption.
-7. Evaluate category recognition without box matching, and localization with same-category IoU matching. Keep scene-mean and class-macro averages separate.
+1. 在教师标注或增强之前，按采集批次、来源分组划分真实图像。人工类别、框标注与模型回答分别保存。
+2. 根据可见部件状态、场景、类别定义和谨慎的风险描述生成结构化监督，审核后再训练。
+3. 从训练集中选择同场景背景与缺陷参考图。仅修改目标缺陷，保持无关几何结构；核实实际标签，不直接迁移原框。
+4. 用审核过的描述训练 Qwen，用人工审核的框训练检测器。两个组件独立优化，不使用统一的端到端损失。
+5. 可选：用已确认类别的合成图像对 SFT 模型进行类别集合奖励的强化学习。生成意图不能直接作为真值。
+6. 推理时 Qwen 返回明确的最终类别；检测器将预测类别作为文本提示，不读取评测真值。
+7. 类别识别独立评测；定位采用同类别 IoU 匹配，场景平均与类别宏平均分开报告。
 
-## Paper-To-Code Map
+## 论文与代码对应关系
 
-| Manuscript module | Release implementation | Source evidence |
+| 论文模块 | 发布实现 | 来源依据 |
 |---|---|---|
-| Teacher data engine | `railmind/api.py`, `prompts/teacher.txt`, `review` | Annotation scripts and domain prompts; new portable adapter |
-| NanoBanana defect transfer | `railmind/augment.py`, `prompts/augmentation.json` | Existing scene-aligned pipeline and 13 prompt mappings |
-| Qwen SFT | `export-sft`, SFT recipe profiles | Offline LLaMA-Factory bundle and training YAML |
-| Detector training | `export-dino`, source-matched config and snapshot | Open-GroundingDino train2 setup |
-| GRPO/GSPO | `railmind/reward.py`, reward plugin and recipe profiles | Manuscript reward and server ms-swift examples; original railway launch missing |
-| Reasoning-guided grounding | `semantic`, `ground` | Qwen-result-driven detector evaluation scripts |
-| Classification/detection metrics | `railmind/evaluation.py` | Manuscript protocols; clarified pooling and matching |
+| 教师数据引擎 | `railmind/api.py`、`prompts/teacher.txt`、`review` | 标注脚本、领域提示词及新的可迁移适配器 |
+| NanoBanana 缺陷迁移 | `railmind/augment.py`、`prompts/augmentation.json` | 同场景生成流程与 13 类提示词映射 |
+| Qwen SFT | `export-sft`、SFT 配置 | 离线 LLaMA-Factory 源码与训练 YAML |
+| 检测器训练 | `export-dino`、匹配源码的配置与快照 | Open-GroundingDino 的 train2 配置 |
+| GRPO/GSPO | `railmind/reward.py`、奖励插件和 RL 配置 | 论文奖励与服务器 ms-swift 示例；原铁路启动脚本缺失 |
+| 理解引导定位 | `semantic`、`ground` | Qwen 结果驱动的检测评测脚本 |
+| 分类与检测指标 | `railmind/evaluation.py` | 论文协议及明确后的汇总、匹配规则 |
 
-The new teacher prompt uses concise observable evidence and structured outputs. It does not pretend to be the exact original prompt or recover hidden reasoning. Prompt hashes make future runs traceable.
+新的教师提示词要求简洁的可见证据与结构化输出，不声称与历史原始提示词完全相同，也不声称恢复了隐藏推理过程。提示词哈希用于追溯后续实验。
 
-The source release deliberately excludes unrelated banking and RAG demos, old website user storage, duplicate model frameworks, weights, failed compression fragments and bulk experiment outputs.
+发布内容排除无关的银行/RAG 示例、旧网站用户存储、重复框架、权重、失败压缩片段和批量实验输出。训练集、评测集及样本清单均不发布。

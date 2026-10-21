@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "railmind-research"
 version = "0.1.0"
-description = "Reproducible railway anomaly data, reasoning, grounding and evaluation workflows"
+description = "可复现的铁路缺陷数据处理、理解、定位与评测工作流"
 requires-python = ">=3.10"
 dependencies = []
 

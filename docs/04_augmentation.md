@@ -1,12 +1,12 @@
-# NanoBanana Scene-Aligned Data Augmentation
+# NanoBanana 同场景数据增强
 
-The server implementation uses an asynchronous GRSAI-style NanoBanana gateway: submit `/v1/draw/nano-banana`, poll `/v1/draw/result`, then download the generated image. This is a **provider-specific adapter**, not a universal Google SDK. Endpoint and model availability must be checked with the selected provider before making paid calls.
+服务器实现通过 GRSAI 风格的异步 NanoBanana 网关提交 `/v1/draw/nano-banana`，轮询 `/v1/draw/result`，再下载图像。这是**特定提供方的适配器**，不是通用 Google SDK。付费调用前需核对提供方的端点与模型可用性。
 
-## Prepare Background And Reference Pools
+## 准备背景池和参考池
 
-Build train-only manifests for both pools, then apply visual-review decisions with `review`. Planning requires approved, image-hash-matched reviews, including explicit empty verified labels for normal backgrounds. Backgrounds should lack the intended defect; references should show it clearly. Keep the scene aligned. For example, synthesize a fractured clip on an existing rail clip, not on a noise-barrier panel. Multi-defect requests require a reference whose verified categories include the requested combination.
+两个池都只使用训练集来源，先构建清单，再用 `review` 写入视觉审核结果。增强计划要求审核通过且图像哈希匹配；正常背景也需要显式填写空的已确认标签列表。背景应不含目标缺陷，参考图应清晰展示缺陷，并保持场景一致。例如，弹条断裂应合成在轨道弹条上，而不是声屏障面板上。多缺陷任务要求参考图的已确认类别覆盖目标组合。
 
-Set generation quotas before the run. Use the real training category histogram to prioritize rare categories, for example weights proportional to `1 / max(class_count, 1)`, then allocate and review integer quotas. The planner uses explicit target counts rather than hiding this decision in an implicit sampler.
+运行前确定生成配额。可按真实训练集类别数量优先补充长尾类，例如用 `1 / max(class_count, 1)` 作权重，再分配并审核整数配额。计划器使用明确目标数量，不隐藏采样决策。
 
 ```bash
 python -m railmind plan-augment --backgrounds data/backgrounds/reviewed.jsonl \
@@ -18,25 +18,25 @@ python -m railmind augment --tasks outputs/augmentation_tasks.jsonl \
   --output-dir outputs/generated
 ```
 
-The planner rejects held-out splits, incompatible scenes, identical background/reference images and absent reference categories. Seeded task choices are reproducible. Background/reference annotation quality must be verified by the dataset curator.
+计划器拒绝非训练集、场景不兼容、背景与参考相同、参考缺少目标类别的任务。随机种子使选图过程可重复，标注质量仍需数据整理者确认。
 
-## Generate And Preserve Provenance
+## 生成与来源追溯
 
-Set `NANO_BANANA_BASE_URL`, `NANO_BANANA_API_KEY`, `NANO_BANANA_MODEL`. Install image support with `pip install -e '.[images]'`. Add `--execute` to the second command.
+设置 `NANO_BANANA_BASE_URL`、`NANO_BANANA_API_KEY`、`NANO_BANANA_MODEL`，用 `pip install -e '.[images]'` 安装图像支持。第二条命令加 `--execute` 才调用。
 
-The 13 source-derived prompts require physically plausible, limited defect changes; preserved perspective, lighting and component geometry; and removal of reference annotation boxes/text. Multi-class prompts combine selected constraints. Inspect results for conflicts; they are not guaranteed to obey every instruction.
+从来源代码整理出的 13 类提示词要求：缺陷变化符合物理常识且范围有限，保持透视、光照和部件几何，去除参考图上的标注框与文字。多类别任务组合相应约束；仍需检查冲突，不能假定结果遵守全部指令。
 
-Each task stores the source hashes, prompt, model, provider and accepted provider task ID. Polling resumes from the saved ID after interruption; downloaded images are checked on resume. A crash after provider acceptance but before saving the ID is still ambiguous: check the provider dashboard before rerunning that task.
+每个任务保存来源哈希、提示词、模型、提供方和已受理的任务 ID。中断后从保存的 ID 继续轮询，续接时检查已下载图像。如果提供方受理后、ID 落盘前崩溃，任务状态仍不确定，重跑前先检查提供方控制台。
 
 ```bash
 python -m railmind collect-augment --output-dir outputs/generated \
   --output data/synthetic/manifest.jsonl
 ```
 
-The generated images remain under `outputs/generated`, which is the `--image-root` for subsequent annotation and review. The manifest stores relative names, actual image dimensions and source lineage. It contains `target_labels`, not assumed `gt_labels`.
+图像留在 `outputs/generated`，后续标注和审核将它作为 `--image-root`。清单保存相对路径、实际尺寸和来源关系，包含 `target_labels`，不将生成目标自动视为 `gt_labels`。
 
-## Visual Quality Gate
+## 视觉质量审核
 
-Inspect every retained image for actual defect presence, scale, geometry, realism, unwanted additional defects, reference transfer artifacts and burned-in annotations. Write verified category sets using the `review` schema. SFT additionally requires reviewed teacher evidence. RL requires a reviewed synthetic image with verified labels. Detector training requires reviewed **actual** pixel boxes; do not reuse original boxes after a generative edit.
+逐图检查实际缺陷、尺度、几何、真实感、额外缺陷、迁移伪影及残留标注。用 `review` 格式写入已确认类别。SFT 还需审核过的教师证据；RL 需审核并确认类别的合成图像；检测器训练需要审核过的**实际像素框**，不能在生成式编辑后沿用原框。
 
-Record reviewer, image hash and acceptance/rejection. Retain failed samples and reasons locally for audit, but keep rejected samples out of training. Run lineage leakage checks against every validation/test manifest before training.
+记录审核者、图像哈希与通过/拒绝结果。失败样本和原因留在本地供审计，拒绝样本不进入训练。训练前对所有验证/测试清单执行来源泄漏检查。生成图像和监督样本属于训练数据，不上传仓库。

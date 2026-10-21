@@ -122,7 +122,7 @@ def bbox(value, width, height):
 
 
 def parse_answer(text):
-    """Parse only the explicit final JSON, never categories in analysis prose."""
+    """只解析明确的最终 JSON，不解析分析文字中的类别。"""
     text = text.strip()
     if "<answer>" in text:
         text = text.split("<answer>", 1)[1].split("</answer>", 1)[0].strip()

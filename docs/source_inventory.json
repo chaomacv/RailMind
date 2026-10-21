@@ -14,7 +14,7 @@
       "steel_bridge": 275,
       "power_tower": 91
     },
-    "original_810_derivation": "Explicit subset image IDs <=810; original historic annotation file not independently recovered",
+    "original_810_derivation": "按对应来源文件中的图像 ID 显式派生 810 比较子集；历史原始标注文件未独立找回",
     "original_810_count": 810,
     "extra_scene_counts": {
       "catenary_pole": 10
@@ -39,7 +39,7 @@
     }
   },
   "historical_railway_rl_launch_recovered": false,
-  "paper_identity": "RailMind: Multimodal Reasoning for Railway Infrastructure Security (13-page user-supplied draft)",
+  "paper_identity": "RailMind: Multimodal Reasoning for Railway Infrastructure Security (用户提供的 13 页论文草稿)",
   "audit_date": "2026-10-07",
-  "publication_status": "source-only publication; all training and evaluation datasets withheld"
+  "publication_status": "仅发布源码；训练集和评测集均不发布"
 }

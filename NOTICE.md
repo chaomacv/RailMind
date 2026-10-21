@@ -1,7 +1,7 @@
-# Attribution And Release Scope
+# 来源致谢与发布范围
 
-RailMind research workflow code is newly organized from the authors' existing experiments and the supplied manuscript. The author-selected license for new code remains pending; this release candidate does not invent a redistribution grant. Before a public release, the authors should select the project license and confirm dataset/model release permissions.
+RailMind 工作流代码根据作者已有实验与论文材料整理。新代码许可证仍待作者选定，本仓库不擅自授予尚未确认的再分发许可。后续增加示例、数据或权重时需另行核对授权。
 
-Bundled third-party source retains its own license and copyright notices. Source hashes identify selected files in `third_party/source_lock.json`. The GroundingDINO implementation is Open-GroundingDino by Zuwei Long and Wei Li; acknowledge IDEA Research and the dependencies credited upstream. LLaMA-Factory and ms-swift retain their upstream attribution and licenses.
+第三方源码保留各自许可证与版权声明，文件哈希见 `third_party/source_lock.json`。检测器采用 Zuwei Long、Wei Li 的 Open-GroundingDino 实现，并致谢 IDEA Research 及上游列出的依赖。LLaMA-Factory、ms-swift 保留上游来源和许可证。
 
-No private railway imagery, encrypted imagery, authentication records, website chat histories, API credentials, model weights or manuscript PDF are part of this source release. The offline 62 GiB training archive is a separate private reproduction artifact, not a GitHub source payload.
+训练集、评测集、私有铁路图像、标注、监督样本、manifest、划分和子集 ID 清单不属于源码发布。加密图像、身份认证记录、网站聊天记录、API 凭据、权重和私有论文 PDF 同样排除。约 62 GiB 离线训练包是独立的私有复现材料，不上传 GitHub。

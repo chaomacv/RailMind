@@ -57,7 +57,7 @@ def run(tasks, background_root, reference_root, prompt_config, output_dir, execu
                 raise ValueError("Generation input changed since planning")
     if not execute:
         return {"dry_run": True, "tasks": len(tasks), "output": str(out),
-                "note": "Provider adapter: legacy GRSAI async NanoBanana protocol; verify current provider before execution"}
+                "note": "提供方适配器：使用旧版 GRSAI 异步 NanoBanana 协议，执行前核对当前服务"}
     host = os.environ.get("NANO_BANANA_BASE_URL", "").rstrip("/")
     key = os.environ.get("NANO_BANANA_API_KEY", "")
     model = os.environ.get("NANO_BANANA_MODEL", "nano-banana-pro")
@@ -74,7 +74,7 @@ def run(tasks, background_root, reference_root, prompt_config, output_dir, execu
             if any(saved.get(k) != v for k, v in expected.items()):
                 raise ValueError("Generation resume configuration changed")
         else:
-            # Persist the accepted task ID before polling, so reconnecting does not resubmit it.
+            # 轮询前保存已受理的任务 ID，防止续接时重复提交。
             response = request_json(host + "/v1/draw/nano-banana", {"model": model, "prompt": prompt,
                 "urls": [image_uri(checked_path(background_root, task["background"])),
                          image_uri(checked_path(reference_root, task["reference"]))],

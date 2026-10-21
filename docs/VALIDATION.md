@@ -1,20 +1,32 @@
-# Local Release Validation
+# 发布验证记录
 
-Validated on the source server on 2026-10-07 using Python 3.14.6 for the dependency-free CPU workflow. The project targets Python >=3.10; the GitHub CI matrix for 3.10/3.11/3.12 is defined but has not run remotely because the repository is not uploaded.
+项目要求 Python >=3.10。以下区分历史服务器验证、GitHub CI 与尚未验证的 GPU/API 环节。
 
-- CPU synthetic demo: PASS, no API requests or GPU training.
-- Regression tests: 27 tests, covering exports, reward, box matching, malformed outputs, split/lineage leakage, review hashes, resume and provider-task persistence.
-- Editable package installation in a workspace-local virtual environment: PASS.
-- Installed CLI help and offline demo: PASS.
-- Wheel build, separate wheel installation, and offline CLI demo from outside the source checkout: PASS.
-- Release scan: Python/JSON syntax, documentation links, common credential patterns and third-party source hashes checked.
-- Framework snapshot assembly: 738 source files, with original third-party licenses and per-file SHA256.
-- Source benchmark audit: 820 image records, 820 disk images, 2,083 annotations, no missing references.
-- Source detector train2 audit: 3,334 images, 10,613 annotations.
+## 历史服务器验证
 
-No claim is made that CUDA operators, all GPU dependency combinations, real NanoBanana/teacher services or historical paper training runs were executed. Those checks are outside the current release-preparation scope.
+2026-10-07 在来源服务器使用 Python 3.14.6 验证不依赖第三方包的 CPU 流程：
 
-Reproduce the local checks from the source checkout:
+- CPU 虚构样例流程通过，未调用 API 或进行 GPU 训练。
+- 27 项回归测试通过，覆盖数据导出、奖励、框匹配、格式错误、划分/来源泄漏、审核哈希、断点续接和提供方任务 ID 持久化。
+- 独立虚拟环境中的可编辑安装通过。
+- 安装后的命令行帮助与离线示例通过。
+- wheel 构建、独立安装及在源码目录外执行示例通过。
+- 发布扫描覆盖 Python/JSON 语法、文档链接、常见凭据模式和第三方源码哈希。
+- 第三方框架快照整理了 738 个源文件，保留上游许可证与逐文件 SHA256。
+- 私有基准审计：820 条图像记录、820 张图像、2,083 个标注，无缺失引用。
+- 私有检测 train2 审计：3,334 张图像、10,613 个标注。
+
+## 2026-10-20 源码发布验证
+
+服务器候选版本再次通过 27 项测试、发布扫描及离线示例。发布前额外排除数据子集 ID 清单，包括安装包资源目录中的副本，仅保留来源汇总统计。
+
+首次源码发布提交的 GitHub CI 在 Python 3.10、3.11、3.12 下全部成功，覆盖安装、27 项测试、离线示例及发布扫描。记录见 [GitHub Actions](https://github.com/chaomacv/RailMind/actions/runs/39425682658)。
+
+训练集、评测集及其清单不发布。CUDA 算子、所有 GPU 依赖组合、真实 NanoBanana/教师服务和历史论文训练均不在上述通过范围内。
+
+## 本地复查
+
+在源码目录运行：
 
 ```bash
 python -m unittest discover -s tests -v
@@ -22,8 +34,4 @@ python -m railmind demo --output outputs/new-validation-run
 python scripts/check_release.py
 ```
 
-Only source/config/doc files belong in the publication payload. `local/`, `outputs/`, caches, virtual environments, generated datasets and model weights are excluded.
-
-## Source-only release review (2026-10-20)
-
-The server candidate passed 27 tests, release scanning and the offline demo. Public staging additionally removes dataset subset lists, including packaged asset copies, and retains only aggregate source statistics. All training/evaluation datasets are withheld. GPU training and real API calls remain unverified.
+只发布源码、配置与文档。`local/`、`outputs/`、缓存、虚拟环境、生成数据和权重排除在外。

@@ -1,5 +1,5 @@
 {
-  "status": "small custom-data workflow template, not a paper reproduction",
+  "status": "小规模自有数据工作流模板，不代表论文复现",
   "expected_records": null,
   "effective_batch_size": 32,
   "config": {

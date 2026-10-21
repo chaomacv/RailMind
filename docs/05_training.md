@@ -1,10 +1,10 @@
-# SFT And GroundingDINO Training
+# SFT 与 GroundingDINO 训练
 
-Use separate Python/CUDA environments for Qwen, RL and the legacy detector implementation. The CPU package works without PyTorch. GPU dependency compatibility is not established by the offline tests, and installing every training framework into one environment is not a supported shortcut.
+Qwen、RL 和旧版检测器分别使用独立的 Python/CUDA 环境。CPU 工具包无需 PyTorch。离线测试不能证明 GPU 依赖兼容，不建议将所有训练框架装入同一个环境。
 
 ## Qwen SFT
 
-Prepare reviewed data with `export-sft`; it creates `train.json` and the matching `dataset_info.json`. Install the source-matched framework in a compatible GPU environment:
+先用 `export-sft` 导出审核后的数据，生成 `train.json` 及配套的 `dataset_info.json`。在兼容的 GPU 环境中安装对应框架：
 
 ```bash
 python -m pip install -e .
@@ -16,28 +16,28 @@ python -m railmind train sft --recipe configs/sft/custom_lora.json \
   --output outputs/sft_custom
 ```
 
-This prints the resolved command without training. Add `--execute` once the model, data and GPU stack are ready. The launcher uses `FORCE_TORCHRUN=1`, generates an absolute-path config, and rejects nonempty run directories. The generated `.yaml` is JSON syntax, which is valid YAML and accepted by the framework's YAML parser.
+默认仅打印解析后的命令。模型、数据和 GPU 环境准备完成后加 `--execute`。启动器设置 `FORCE_TORCHRUN=1`，生成绝对路径配置，并拒绝非空输出目录。生成的 `.yaml` 使用 JSON 语法；JSON 是有效 YAML，框架的 YAML 解析器可以读取。
 
-Recipe choices:
+配置选择：
 
-- `custom_lora.json`: your own reviewed dataset; does not assert manuscript results.
-- `paper_20931.json`: manuscript counts, 3 epochs, nominal effective batch 32, LR 5e-6. Exact historical settings are incomplete; full tuning is an explicitly documented assumption, not proof of the original method.
-- `server_lora_24265.json`: offline bundle profile, rank 8, 3 epochs, LR 1e-5, effective batch 32, cutoff 8192. This includes additional direct box-output samples and is not the manuscript descriptive-only profile.
+- `custom_lora.json`：自己的审核数据，不声称复现论文结果。
+- `paper_20931.json`：论文数据量，3 个 epoch，名义有效批量 32，学习率 5e-6。精确历史配置不完整；全参数微调是明确记录的假设，不是原始方法的恢复证据。
+- `server_lora_24265.json`：离线包中的后续配置，rank 8，3 个 epoch，学习率 1e-5，有效批量 32，截断长度 8192。包含额外的直接框输出样本，与论文描述监督配置分开报告。
 
-The batch check is `GPU count * per-device batch * gradient accumulation`. Copy and adjust a recipe explicitly when changing GPU count. The framework template must support `qwen3_vl`; the older top-level server LLaMA-Factory tree is not the selected snapshot. Obtain the base model from its official model distribution and retain its license.
+批量检查为 `GPU 数 × 单卡批量 × 梯度累积步数`。改变 GPU 数时显式复制并调整配置。框架模板必须支持 `qwen3_vl`；服务器旧顶层 LLaMA-Factory 的模板集合不同。基座模型从官方分发渠道获取，保留其许可证。
 
-Save the resolved config, dataset/prompt hashes, actual package versions, random seed, hardware, logs and output checkpoint. Merge LoRA adapters using the selected framework before providing a full SFT model to the RL template, unless a separately documented adapter training recipe is used.
+保存解析后的配置、数据/提示词哈希、随机种子、实际框架版本、基座模型、硬件、日志和 checkpoint。若 RL 使用完整 SFT 模型，先按所选框架合并 LoRA；适配器形式的 RL 需单独记录训练方案。
 
-## Human Box Annotations
+## 人工框标注
 
-Synthetic images need new visual inspection and new boxes. Review decisions can include:
+合成图像需重新检查并标框。以下为审核格式示例：
 
 ```json
 [{"id":"sample-id", "sha256":"EXACT_IMAGE_SHA256", "approved":true, "reviewer":"reviewer",
   "verified_labels":["noclip"], "instances":[{"label":"noclip","bbox":[100,200,160,240]}]}]
 ```
 
-`bbox` is **xyxy pixels**. `review` checks bounds and agreement with verified labels. For existing human COCO annotations, apply review to the imported manifest; teacher annotations are not required for detector training.
+`bbox` 使用 **xyxy 像素坐标**。`review` 检查边界和已确认类别的一致性。已有人工 COCO 标注可先导入清单再审核，不需要先生成教师文本。
 
 ```bash
 python -m railmind export-dino --records data/train/reviewed_boxes.jsonl \
@@ -45,11 +45,11 @@ python -m railmind export-dino --records data/train/reviewed_boxes.jsonl \
   --val-root data/val/images --output-dir data/dino
 ```
 
-This writes ODVG training JSONL, COCO validation JSON, a label map and a local absolute-path `datasets.json`. It checks training/validation hashes and augmentation lineage. Regenerate the config on a new machine.
+输出 ODVG 训练 JSONL、COCO 验证 JSON、类别映射及含本地绝对路径的 `datasets.json`，并检查训练/验证哈希和增强来源关系。迁移机器后重新生成配置。这些数据产物不上传仓库。
 
-## Source-Matched Detector
+## 与源码匹配的检测器
 
-The vendored detector is **Open-GroundingDino**, using `models/GroundingDINO`, not the differently structured official inference-only package. In a compatible environment, install its requirements and build its ops:
+仓库内保存的是 **Open-GroundingDino**，采用 `models/GroundingDINO` 结构，与官方仅推理包的目录结构不同。在兼容环境中安装依赖、编译算子：
 
 ```bash
 python -m pip install -r third_party/groundingdino/requirements.txt
@@ -59,9 +59,9 @@ python test.py
 cd ../../../../..
 ```
 
-Install PyTorch/torchvision for your CUDA stack before building; check the upstream snapshot README for its legacy baseline. Neither this release nor the prior bundle captures a working container image or a complete historic environment lock. Do not use the server's Python 3.14 base as an assumed compatible GPU training environment.
+编译前先安装匹配 CUDA 的 PyTorch/torchvision，参考上游快照 README 中的历史环境基线。本发布及私有复现包都不是完整的已验证容器或历史环境锁。不要默认服务器 Python 3.14 可直接用于 GPU 训练。
 
-The copied `cfg_railway.py` preserves Swin-T, BERT freezing, 30 epochs and the actual optimizer/scheduler settings. Download or supply trusted pretrained Swin-T and BERT weights separately.
+保留的 `cfg_railway.py` 包含 Swin-T、BERT 冻结、30 个 epoch 及实际优化器/调度配置。预训练 Swin-T 和 BERT 权重另行获取。
 
 ```bash
 python -m railmind train dino --recipe configs/dino/recipe.json \
@@ -71,4 +71,4 @@ python -m railmind train dino --recipe configs/dino/recipe.json \
   --dataset-config data/dino/datasets.json --output outputs/dino_train2
 ```
 
-Add `--execute` for training. The launcher avoids obsolete `zcy` Conda paths and uses the active interpreter. The manuscript's “batch size 4” and source config's per-process batch 4 should not be silently interpreted as the same global batch. Preserve the resolved world size and report it.
+加 `--execute` 才训练。启动器使用当前解释器，不依赖旧 `zcy` Conda 路径。论文“batch size 4”与源码“每进程 batch 4”不能直接当作相同全局批量，需记录实际进程数。

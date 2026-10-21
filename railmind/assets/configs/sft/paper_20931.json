@@ -1,5 +1,5 @@
 {
-  "status": "reconstructed from manuscript, original exact launch not recovered",
+  "status": "依据论文重建，未恢复精确历史启动配置",
   "expected_records": 20931,
   "effective_batch_size": 32,
   "config": {
@@ -12,5 +12,5 @@
     "report_to": "none", "logging_steps": 10, "save_steps": 500,
     "overwrite_output_dir": false
   },
-  "unresolved": ["Manuscript does not specify full vs LoRA; full is an explicit recipe assumption, not recovered evidence.", "Template and sequence length must match the selected LLaMA-Factory revision."]
+  "unresolved": ["论文未明确全参数微调或 LoRA；本配置采用全参数微调是显式假设，不是恢复证据。", "模板与序列长度需匹配所选 LLaMA-Factory 版本。"]
 }

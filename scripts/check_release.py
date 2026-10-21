@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Check the release payload, docs, source locks and common credential patterns."""
+"""检查发布文件、文档链接、源码哈希及常见凭据模式。"""
 import ast
 import hashlib
 import json

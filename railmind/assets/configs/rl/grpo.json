@@ -1,5 +1,5 @@
 {
-  "status": "reconstructed framework recipe; exact historical railway launch not recovered",
+  "status": "框架重建配置；原始铁路专用启动配置未恢复",
   "expected_records": 3134,
   "effective_batch_size": 64,
   "config": {
