@@ -96,19 +96,6 @@ RailMind uses an **8B-parameter** multimodal model. The manuscript also reports 
 
 **Reporting scope.** These approximate improvements follow the manuscript abstract's notation. They are not relabeled as percentage-point gains. Consult the paper's experimental tables for absolute scores, baselines, and aggregation definitions. The public workflow demo does not independently reproduce the paper's experiments.
 
-### Reproduction scope
-
-| Setting | Recorded scale | What the release establishes |
-| :--- | :--- | :--- |
-| Paper description SFT | **20,931** supervision records | Paper-oriented recipe; exact historical launch not recovered |
-| Later mixed SFT | **24,265** records | Adds **3,334** box-output samples; a separate setting |
-| Detector training | **3,334** images / **10,613** instances | Source inventory and recovered configuration |
-| Paper RL | **3,134** prompts / **16** rollouts | Reconstructed recipes; original railway launch and exact prompt set unconfirmed |
-
-Sources: [source inventory](docs/source_inventory.json), [reproducibility audit](docs/08_reproducibility.md).
-
-The release evaluation protocol, `railmind-release-v1`, distinguishes class-macro, scene-average, and instance-micro precision/recall/F1. Precision at a fixed IoU is not COCO AP. Use the [evaluation guide](docs/07_evaluation.md) before comparing historical paper tables.
-
 ## Rail-Security-Bench
 
 A domain-specific benchmark for **railway infrastructure anomaly understanding and localization**, covering **six inspection scenarios** and defects involving structural degradation, missing components, and foreign-object intrusion.
