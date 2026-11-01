@@ -8,7 +8,6 @@
 
 [![Project Page](https://img.shields.io/badge/Project-Page-76b900?style=flat-square)](https://chaomacv.github.io/RAIL-SECURTTY-BENCH/)
 [![Paper PDF](https://img.shields.io/badge/Paper-PDF-d95454?style=flat-square)](https://chaomacv.github.io/RAIL-SECURTTY-BENCH/assets/pdf/RailMind.pdf)
-![arXiv Coming soon](https://img.shields.io/badge/arXiv-Coming_soon-b31b1b?style=flat-square)
 
 <img src="docs/assets/railmind-teaser.jpg" alt="Six railway inspection scenarios with existing benchmark images and descriptions of defects, potential safety impacts, and severe consequences. No image counts are shown." width="100%">
 
