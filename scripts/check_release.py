@@ -6,6 +6,18 @@ import json
 import re
 from pathlib import Path
 
+# Public documentation illustrations approved for this source release.
+# Match both the exact repository path and SHA256; do not exempt entire folders.
+PUBLIC_DOC_ASSETS = {
+    "docs/assets/railmind-teaser.jpg": "bcf2deabbe9ace6deaf241eed2f1f517655dd6852975be60297fc2a270b51a10",
+    "docs/assets/scenes/catenary-pole.png": "697c8c536986bf9200f77d57e62bd8db0f5743130aa8262b76880da01ffa79aa",
+    "docs/assets/scenes/environment.png": "ae022e55a8d2e9f8025e83a52f350183a069ef9bb2cd4c89d45d5883027659be",
+    "docs/assets/scenes/noise-barrier.png": "61b63348318f2615d728077539c9d0553ae474e76711f6e6401bf36c49101f40",
+    "docs/assets/scenes/power-tower.png": "3e3da02ad9d6671703ca797c54a6297f56aebcd990816b49307c0acac3fd19d3",
+    "docs/assets/scenes/rail-track.png": "c07ebdf13ccfc9077bd321b9aa0b9f7cd0adb1ab49ec8a0a7a31322f8bbf8c63",
+    "docs/assets/scenes/steel-bridge.png": "13bbe2c37393422485d3c23ab0c56d66dc2000121ba9e7360f724cb844266546"
+}
+
 root = Path(__file__).resolve().parents[1]
 errors = []
 count = 0
@@ -20,7 +32,10 @@ for path in root.rglob("*"):
     if not path.is_file():
         continue
     count += 1
-    if path.suffix.lower() in {".jsonl", ".csv", ".tsv", ".jpg", ".jpeg", ".png", ".webp"} or "benchmark_810_ids" in path.name:
+    public_asset = rel.as_posix() in PUBLIC_DOC_ASSETS
+    if public_asset and hashlib.sha256(path.read_bytes()).hexdigest() != PUBLIC_DOC_ASSETS[rel.as_posix()]:
+        errors.append(f"Public documentation asset hash mismatch: {rel}")
+    if (path.suffix.lower() in {".jsonl", ".csv", ".tsv", ".jpg", ".jpeg", ".png", ".webp"} and not public_asset) or "benchmark_810_ids" in path.name:
         errors.append(f"Private data or sample list in release: {rel}")
     if path.stat().st_size > 5_000_000 or path.suffix in {".pth", ".pt", ".bin", ".safetensors", ".enc", ".pdf"}:
         errors.append(f"Non-source payload: {rel}")
