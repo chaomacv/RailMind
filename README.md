@@ -67,7 +67,6 @@ The diagram summarizes the workflow; it does not establish that every historical
 | Later mixed SFT | **24,265** records | Adds **3,334** box-output samples; a separate setting |
 | Detector training | **3,334** images / **10,613** instances | Source inventory and recovered configuration |
 | Paper RL | **3,134** prompts / **16** rollouts | Reconstructed recipes; original railway launch and exact prompt set unconfirmed |
-| Current benchmark inventory | **820** images / **2,083** annotations | Inventory audit; data remain private |
 
 Sources: [source inventory](docs/source_inventory.json), [reproducibility audit](docs/08_reproducibility.md).
 
@@ -75,21 +74,20 @@ The release evaluation protocol, `railmind-release-v1`, distinguishes class-macr
 
 ## Rail-Security-Bench
 
-A railway infrastructure evaluation benchmark spanning **six scenarios**, with a naturally uneven scene distribution.
+A domain-specific benchmark for **railway infrastructure anomaly understanding and localization**, covering **six inspection scenarios** and defects involving structural degradation, missing components, and foreign-object intrusion.
 
-<img src="docs/assets/railmind-benchmark.svg" alt="Benchmark scene counts: Steel Bridge 275, Noise Barrier 227, Environment 128, Power Tower 91, Rail Track 88, Catenary Pole 11; total 820 images." width="100%">
+<img src="docs/assets/railmind-benchmark.svg" alt="Railway inspection scenarios and defects: steel bridges, noise barriers, surrounding environments, power towers, rail tracks, and catenary poles." width="100%">
 
-| Scenario | Images | Example anomaly types |
-| :--- | ---: | :--- |
-| Steel Bridge | 275 | Missing bolts, coating degradation, guardrail corrosion |
-| Noise Barrier | 227 | Corroded panels or columns, mortar deterioration |
-| Environment | 128 | Plastic film, waste, intrusive foreign objects |
-| Power Tower | 91 | Bird nests, foreign objects, loose antenna bolts |
-| Rail Track | 88 | Missing or cracked fasteners |
-| Catenary Pole | 11 | Foreign-object attachments such as bird nests |
-| **Total** | **820** | **2,083 annotated instances** |
+| Scenario | Representative defects |
+| :--- | :--- |
+| Steel Bridge | Missing bolts, coating degradation, guardrail corrosion |
+| Noise Barrier | Corroded panels or columns, mortar deterioration |
+| Environment | Plastic film, waste, intrusive foreign objects |
+| Power Tower | Bird nests, foreign objects, loose antenna bolts |
+| Rail Track | Missing or cracked fasteners |
+| Catenary Pole | Foreign-object attachments such as bird nests |
 
-The legacy directory name contains `810`; the audited contents contain 820 images. An 810-image comparison subset must be derived explicitly by image IDs. See [data conventions](docs/02_data.md) and the [inventory](docs/source_inventory.json).
+**Evaluation focus:** recognizing anomaly categories, explaining visible evidence, and localizing defects across railway inspection scenes. See the [evaluation protocol](docs/07_evaluation.md) and [data documentation](docs/02_data.md) for experimental details.
 
 [Benchmark project](https://github.com/chaomacv/RAIL-SECURTTY-BENCH) · [Project website](https://chaomacv.github.io/RAIL-SECURTTY-BENCH/)
 
