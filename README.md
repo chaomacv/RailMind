@@ -4,7 +4,7 @@
 
 ## RailMind: Multimodal Reasoning for Railway Infrastructure Security
 
-**Chao Ma · Jingxuan Xu · Zhongwei Ren · Tao Ruan · Renshuai Tao · Yunchao Wei**
+**Chao Ma · Zhongwei Ren · Fanteng Meng · Jingxuan Xu · Tong Meng · Xiaojie Jin · Tao Ruan · Renshuai Tao · Yong Qin · Yunchao Wei**
 
 [![Project Page](https://img.shields.io/badge/Project-Page-76b900?style=flat-square)](https://chaomacv.github.io/RAIL-SECURTTY-BENCH/)
 [![Paper PDF](https://img.shields.io/badge/Paper-PDF-d95454?style=flat-square)](https://chaomacv.github.io/RAIL-SECURTTY-BENCH/assets/pdf/RailMind.pdf)
