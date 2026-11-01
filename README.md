@@ -12,49 +12,43 @@
 <table>
 <tr>
 <td width="33%" valign="top" align="left">
-<a href="https://chaomacv.github.io/RAIL-SECURTTY-BENCH/assets/images/Catenary%20Pole.png"><img src="docs/assets/scenes/catenary-pole.png" alt="Catenary Pole: highlighted defect with a color-matched callout. Click to open the full-resolution original image." width="100%"></a>
+<img src="docs/assets/scenes/catenary-pole.png" alt="Catenary Pole: highlighted defect with a color-matched callout." width="100%">
 <h3>Catenary Pole</h3>
 <p>Bird nests and other attachments may compromise overhead electrical clearances. Severe intrusion can contribute to flashover and traction-power interruption.</p>
-<p><a href="https://chaomacv.github.io/RAIL-SECURTTY-BENCH/assets/images/Catenary%20Pole.png">View original · 5760 × 4320</a></p>
 </td>
 <td width="33%" valign="top" align="left">
-<a href="https://chaomacv.github.io/RAIL-SECURTTY-BENCH/assets/images/Environment.png"><img src="docs/assets/scenes/environment.png" alt="Environment: highlighted defect with a color-matched callout. Click to open the full-resolution original image." width="100%"></a>
+<img src="docs/assets/scenes/environment.png" alt="Environment: highlighted defect with a color-matched callout." width="100%">
 <h3>Environment</h3>
 <p>Plastic film, waste and intrusive objects may enter the track area or contact electrical equipment. Severe intrusion can disrupt train operation or power supply.</p>
-<p><a href="https://chaomacv.github.io/RAIL-SECURTTY-BENCH/assets/images/Environment.png">View original · 5760 × 4320</a></p>
 </td>
 <td width="33%" valign="top" align="left">
-<a href="https://chaomacv.github.io/RAIL-SECURTTY-BENCH/assets/images/Noise%20Barrier.png"><img src="docs/assets/scenes/noise-barrier.png" alt="Noise Barrier: highlighted defect with a color-matched callout. Click to open the full-resolution original image." width="100%"></a>
+<img src="docs/assets/scenes/noise-barrier.png" alt="Noise Barrier: highlighted defect with a color-matched callout." width="100%">
 <h3>Noise Barrier</h3>
 <p>Panel and column corrosion, together with deteriorated mortar, may weaken barrier integrity. Advanced damage can cause loose or falling components near the railway.</p>
-<p><a href="https://chaomacv.github.io/RAIL-SECURTTY-BENCH/assets/images/Noise%20Barrier.png">View original · 5760 × 4320</a></p>
 </td>
 </tr>
 <tr>
 <td width="33%" valign="top" align="left">
-<a href="https://chaomacv.github.io/RAIL-SECURTTY-BENCH/assets/images/Power%20Tower.png"><img src="docs/assets/scenes/power-tower.png" alt="Power Tower: highlighted defect with a color-matched callout. Click to open the full-resolution original image." width="100%"></a>
+<img src="docs/assets/scenes/power-tower.png" alt="Power Tower: highlighted defect with a color-matched callout." width="100%">
 <h3>Power Tower</h3>
 <p>Bird nests, foreign objects and loose antenna bolts may impair electrical clearances or attachment stability. Severe cases can involve electrical faults or falling components.</p>
-<p><a href="https://chaomacv.github.io/RAIL-SECURTTY-BENCH/assets/images/Power%20Tower.png">View original · 5760 × 4320</a></p>
 </td>
 <td width="33%" valign="top" align="left">
-<a href="https://chaomacv.github.io/RAIL-SECURTTY-BENCH/assets/images/Rail%20Track.png"><img src="docs/assets/scenes/rail-track.png" alt="Rail Track: highlighted defect with a color-matched callout. Click to open the full-resolution original image." width="100%"></a>
+<img src="docs/assets/scenes/rail-track.png" alt="Rail Track: highlighted defect with a color-matched callout." width="100%">
 <h3>Rail Track</h3>
 <p>Missing or cracked fasteners may weaken rail restraint and track stability. Widespread or progressive damage can pose a serious risk to safe train running.</p>
-<p><a href="https://chaomacv.github.io/RAIL-SECURTTY-BENCH/assets/images/Rail%20Track.png">View original · 5760 × 4320</a></p>
 </td>
 <td width="33%" valign="top" align="left">
-<a href="https://chaomacv.github.io/RAIL-SECURTTY-BENCH/assets/images/Steel%20Bridge.png"><img src="docs/assets/scenes/steel-bridge.png" alt="Steel Bridge: highlighted defect with a color-matched callout. Click to open the full-resolution original image." width="100%"></a>
+<img src="docs/assets/scenes/steel-bridge.png" alt="Steel Bridge: highlighted defect with a color-matched callout." width="100%">
 <h3>Steel Bridge</h3>
 <p>Missing bolts, coating damage and guardrail corrosion may compromise connections and durability. Advanced deterioration can threaten structural or maintenance-access safety.</p>
-<p><a href="https://chaomacv.github.io/RAIL-SECURTTY-BENCH/assets/images/Steel%20Bridge.png">View original · 5760 × 4320</a></p>
 </td>
 </tr>
 </table>
 
 </div>
 
-*Click any scene to open its original 5760 × 4320 PNG from the public Rail-Security-Bench project. Color-matched callouts guide attention to the existing image overlays; they are not new RailMind predictions. Safety consequences are qualitative and depend on defect extent and operating conditions.*
+*Color-matched callouts highlight defects in the existing benchmark illustrations; they are not new RailMind predictions. Safety consequences depend on defect extent and operating conditions.*
 
 <div align="center">
 
