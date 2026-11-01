@@ -46,7 +46,7 @@
 
 <div align="center">
 
-[Code](https://github.com/chaomacv/RailMind) · [Documentation](docs/00_reading_guide.md) · [简体中文](README.zh-CN.md)
+[Code](railmind/) · [Documentation](docs/00_reading_guide.md) · [简体中文](README.zh-CN.md)
 
 [Overview](#overview) · [Method](#method-overview) · [Results](#main-results) · [Benchmark](#rail-security-bench) · [Quick Start](#quick-start)
 

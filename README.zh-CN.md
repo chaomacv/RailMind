@@ -1,65 +1,193 @@
-# RailMind：铁路图像分析、缺陷定位与训练复现
+# RailMind
 
-本仓库围绕论文 **RailMind: Multimodal Reasoning for Railway Infrastructure Security**，将服务器上的研究代码整理为一个独立项目。
+<div align="center">
 
-核心分工：**Qwen3-VL 负责识别缺陷类别、解释可见证据；GroundingDINO 负责精确定位。** Gemini 等教师模型生成领域监督数据，NanoBanana 根据背景图和缺陷参考图增强长尾数据；SFT 后可选择 GRPO/GSPO 强化类别一致性。
+## RailMind: Multimodal Reasoning for Railway Infrastructure Security
 
-## 从这里开始
+**Chao Ma · Zhongwei Ren · Fanteng Meng · Jingxuan Xu · Tong Meng · Xiaojie Jin · Tao Ruan · Renshuai Tao · Yong Qin · Yunchao Wei**
 
-第一次阅读本项目，建议先看 [辅助阅读指南：从目录到完整工作流](docs/00_reading_guide.md)，再进入各阶段教程。
+[![项目主页](https://img.shields.io/badge/Project-Page-76b900?style=flat-square)](https://chaomacv.github.io/RAIL-SECURTTY-BENCH/)
+[![论文 PDF](https://img.shields.io/badge/Paper-PDF-d95454?style=flat-square)](https://chaomacv.github.io/RAIL-SECURTTY-BENCH/assets/pdf/RailMind.pdf)
 
-在仓库根目录，用 Python 3.10 及以上版本：
+<table>
+<tr>
+<td width="33%" valign="top" align="left">
+<img src="docs/assets/scenes/catenary-pole.png" alt="Catenary Pole: highlighted defect with a color-matched callout." width="100%">
+<p>鸟巢等附着异物可能侵占电气安全间隙，影响接触网供电安全；严重侵入时可能引发闪络或牵引供电中断。</p>
+</td>
+<td width="33%" valign="top" align="left">
+<img src="docs/assets/scenes/environment.png" alt="Environment: highlighted defect with a color-matched callout." width="100%">
+<p>塑料薄膜、堆积垃圾等异物可能侵入轨道区域或接触电气设备；严重侵入时可能影响列车运行或电力供应。</p>
+</td>
+<td width="33%" valign="top" align="left">
+<img src="docs/assets/scenes/noise-barrier.png" alt="Noise Barrier: highlighted defect with a color-matched callout." width="100%">
+<p>面板与立柱腐蚀、砂浆劣化可能削弱结构完整性；损伤进一步发展时，可能导致邻近线路的部件松动或坠落。</p>
+</td>
+</tr>
+<tr>
+<td width="33%" valign="top" align="left">
+<img src="docs/assets/scenes/power-tower.png" alt="Power Tower: highlighted defect with a color-matched callout." width="100%">
+<p>鸟巢、异物及天线螺栓松动可能影响电气间隙或附属部件稳定性；严重时可能引发电气故障或部件坠落。</p>
+</td>
+<td width="33%" valign="top" align="left">
+<img src="docs/assets/scenes/rail-track.png" alt="Rail Track: highlighted defect with a color-matched callout." width="100%">
+<p>扣件缺失或开裂可能削弱钢轨约束和轨道稳定性；大范围或持续发展的损伤可能严重威胁列车运行安全。</p>
+</td>
+<td width="33%" valign="top" align="left">
+<img src="docs/assets/scenes/steel-bridge.png" alt="Steel Bridge: highlighted defect with a color-matched callout." width="100%">
+<p>螺栓缺失、涂层损伤和护栏腐蚀可能削弱连接可靠性与结构耐久性；严重劣化时可能危及结构或检修通行安全。</p>
+</td>
+</tr>
+</table>
+
+</div>
+
+*彩色标注用于突出已有基准示例中的异常，并非新增的 RailMind 预测结果。安全影响取决于缺陷程度及实际运行条件。*
+
+<div align="center">
+
+[代码](railmind/) · [文档](docs/00_reading_guide.md) · [English](README.md) · **简体中文**
+
+[项目概述](#项目概述) · [方法架构](#方法架构) · [主要结果](#主要结果) · [基准评测](#rail-security-bench) · [快速开始](#快速开始)
+
+</div>
+
+## 项目概述
+
+RailMind 面向铁路基础设施巡检，将**多模态异常理解**与**文本引导的缺陷定位**结合起来。Qwen3-VL 识别异常类别并描述可见证据，GroundingDINO 根据预测类别定位图像中的缺陷。
+
+研究流程包括教师模型生成监督、同场景图像增强、监督微调，以及可选的 GRPO/GSPO 后训练。仓库提供统一 CLI、提示词、配置模板、评测工具、分阶段教程和部分训练框架源码快照。
+
+- **先理解，再定位。** 使用视觉语言模型预测的异常类别引导检测器。
+- **构建领域监督。** 由教师模型生成描述，使用 NanoBanana 补充长尾缺陷，并经过人工审核。
+- **明确评测口径。** 分别报告分类与定位结果，区分类别、场景及实例层面的汇总指标。
+
+> 对应论文：*RailMind: Multimodal Reasoning for Railway Infrastructure Security*。仓库提供方法代码；训练数据、评测数据和模型权重不随源码发布。
+
+## 方法架构
+
+<img src="docs/assets/railmind-method.svg" alt="RailMind 方法：教师监督与增强经过审核后用于 Qwen3-VL SFT 和可选 RL，人工框标注用于训练 GroundingDINO，预测类别引导异常定位。" width="100%">
+
+**训练阶段。** Gemini 等教师模型生成领域监督。NanoBanana 使用同场景背景与缺陷参考图补充长尾样本。审核后的描述用于 Qwen3-VL SFT，经确认的框标注用于检测器训练；GRPO/GSPO 是可选的后训练阶段。
+
+**推理阶段。** Qwen3-VL 从铁路图像中输出异常类别与可见证据。GroundingDINO 接收图像和**预测类别提示**，输出原图像素坐标中的检测框。推理提示不使用测试真值类别。
+
+| 组件 | 作用 | 使用指南 |
+| :--- | :--- | :--- |
+| 数据引擎 | 生成场景、类别、可见证据与风险描述 | [教师监督](docs/03_data_engine.md) |
+| NanoBanana | 同场景增强，审核后进入训练 | [数据增强](docs/04_augmentation.md) |
+| Qwen3-VL SFT | 面向铁路异常理解的领域适配 | [模型训练](docs/05_training.md) |
+| GRPO / GSPO | 可选的类别决策后训练 | [强化学习](docs/06_rl.md) |
+| GroundingDINO | 根据预测异常类别进行文本引导定位 | [推理与评测](docs/07_evaluation.md) |
+
+架构图概括研究流程，历史训练设置的恢复情况详见[复现审计](docs/08_reproducibility.md)。
+
+## 主要结果
+
+以下为论文 *RailMind: Multimodal Reasoning for Railway Infrastructure Security* 报告的研究结果：
+
+| 任务 | 报告的提升 | 对比设置 |
+| :--- | :--- | :--- |
+| 异常检测：平均精确率 | **约 31%** | 相比最强对比模型，IoU = 0.5 |
+| 异常检测：平均召回率 | **约 19%** | 相比最强对比模型，IoU = 0.5 |
+| 图像级缺陷分类：macro-F1 | **约 37%** | 相比同规模最优开源基线 |
+
+RailMind 使用 **8B 参数**多模态模型。论文同时报告，其分类性能与最强闭源 Gemini 模型具有可比性。
+
+**结果口径。** 上述近似提升沿用论文摘要的百分比表述，不改写为百分点增益。绝对分数、对比模型和平均方式以论文实验表为准；公开工作流 Demo 不构成对论文实验的独立复现。
+
+## Rail-Security-Bench
+
+面向**铁路基础设施异常理解与定位**的领域基准，覆盖**六类巡检场景**，关注结构劣化、部件缺失与异物侵入等缺陷。
+
+<img src="docs/assets/railmind-benchmark.svg" alt="铁路巡检场景与缺陷：钢桥、声屏障、周边环境、电力塔、轨道和接触网杆。" width="100%">
+
+| 场景 | 典型缺陷 |
+| :--- | :--- |
+| 钢桥 | 螺栓缺失、涂层劣化、护栏腐蚀 |
+| 声屏障 | 面板或立柱腐蚀、砂浆劣化 |
+| 周边环境 | 塑料薄膜、堆积垃圾、侵入异物 |
+| 电力塔 | 鸟巢、异物、天线螺栓松动 |
+| 轨道 | 扣件缺失或开裂 |
+| 接触网杆 | 鸟巢等附着异物 |
+
+**评测重点：**识别异常类别、解释可见证据，并在铁路巡检场景中定位缺陷。实验细节见[评测协议](docs/07_evaluation.md)和[数据文档](docs/02_data.md)。
+
+[基准项目](https://github.com/chaomacv/RAIL-SECURTTY-BENCH) · [项目网站](https://chaomacv.github.io/RAIL-SECURTTY-BENCH/)
+
+### 定性结果
+
+首页图片沿用已公开的基准示例。当前源码发布中不包含经过核验的 RailMind 预测与真值对比案例。使用获得授权的本地数据时，可按[推理与评测指南](docs/07_evaluation.md)生成预测。
+
+定性比较应同时展示原图、预测类别与证据、预测框和经确认的真值，并包含成功与失败案例。下方离线 Demo 生成的是虚构工作流样例，不是真实铁路模型预测。
+
+## 快速开始
+
+**Python 3.10+ · CPU Demo · 无需 GPU、模型权重或 API Key**
 
 ```bash
+git clone https://github.com/chaomacv/RailMind.git
+cd RailMind
 python -m venv .venv
 source .venv/bin/activate
 python -m pip install -e .
+
 python -m railmind demo --output outputs/demo
+```
+
+Windows 用户可在 PowerShell 中使用 `.venv\Scripts\Activate.ps1` 激活环境。
+
+Demo 使用程序生成的示例，检查图像清单、审核、SFT/RL 数据导出、增强规划和评测流程。其输出指标不是论文结果。
+
+运行仓库检查：
+
+```bash
 python -m unittest discover -s tests -v
 python scripts/check_release.py
 ```
 
-这个样例不需要 GPU、模型权重或 API Key。它验证图像清单、审核、SFT/RL 数据导出、增强计划和评测流程。图像是程序生成的示意样例，输出指标不是论文结果。
+真实推理与训练需要单独配置环境、授权数据和模型权重。API 与训练命令默认预览参数，加 `--execute` 才实际执行。完整说明从[阅读指南](docs/00_reading_guide.md)开始。
 
-## 完整研究流程
+## 文档导航
 
-| 阶段 | 输入 | 输出 | 文档 |
-|---|---|---|---|
-| 数据准备 | 图像、COCO 人工标注 | 带 split 和 SHA256 的统一 manifest | [数据规范](docs/02_data.md) |
-| 教师数据引擎 | 训练图像、铁路知识提示词 | 场景、类别、可见证据、风险描述 | [大模型标注](docs/03_data_engine.md) |
-| 数据增强 | 同场景背景与缺陷参考图 | 合成图像、生成记录、待审核标签 | [NanoBanana](docs/04_augmentation.md) |
-| 审核与训练 | 通过审核的文本或框标注 | Qwen SFT 数据、DINO ODVG/COCO 数据 | [SFT 与检测器](docs/05_training.md) |
-| 可选 RL | 合成图像的人工确认类别 | GRPO/GSPO 后训练模型 | [强化学习](docs/06_rl.md) |
-| 联合推理 | 图像、Qwen 类别输出 | GroundingDINO 像素坐标检测框 | [推理与评测](docs/07_evaluation.md) |
-| 实验比较 | 固定测试集与协议 | 分类/检测、消融和失败案例结果 | [复现边界](docs/08_reproducibility.md) |
-| 知识板块 | SFT/RL 后训练、社区工具链、常见风险 | 面向复用者的学习路线与工程清单 | [SFT/RL 技能图谱](docs/09_sft_rl_skills_and_community.md) |
-| 论文路线 | 经典与最新后训练论文、曲线解读、调参方法 | 从“会跑”到“会判断训练”的补课路径 | [后训练论文路线](docs/10_post_training_paper_roadmap.md) |
+| 入门 | 研究流程 | 评测与扩展阅读 |
+| :--- | :--- | :--- |
+| [阅读指南](docs/00_reading_guide.md) | [教师数据引擎](docs/03_data_engine.md) | [推理与评测](docs/07_evaluation.md) |
+| [完整工作流](docs/01_workflow.md) | [NanoBanana 数据增强](docs/04_augmentation.md) | [复现审计](docs/08_reproducibility.md) |
+| [数据规范](docs/02_data.md) | [SFT 与检测器训练](docs/05_training.md) | [SFT/RL 技能与工具](docs/09_sft_rl_skills_and_community.md) |
+| [English README](README.md) | [GRPO / GSPO](docs/06_rl.md) | [后训练论文路线](docs/10_post_training_paper_roadmap.md) |
 
-已有训练图像可以直接进入教师标注流程；已有人工框标注可以进入检测器训练。合成图像先审核，再进入 SFT/RL。生成时指定的目标类别不自动等于真实标签。
+<details>
+<summary><strong>仓库结构</strong></summary>
 
-## 810 与 820 已核对
+| 路径 | 内容 |
+| :--- | :--- |
+| `railmind/` | 统一工作流 CLI 与适配器 |
+| `configs/` | SFT、RL 和检测器训练配置 |
+| `prompts/` | 教师监督与增强提示词 |
+| `training/` | 铁路类别奖励插件 |
+| `third_party/` | 部分框架源码快照及上游许可证 |
+| `tests/` | 工作流和评测回归测试 |
+| `docs/` | 教程、来源清单和复现边界 |
 
-服务器的 `810_test_modified` 目录实际已有 **820 张图像、820 条 COCO 图像记录、2,083 个实例标注**，所有图像引用均存在。六个场景的数量与论文一致，最后增加的 10 张是接触网杆图像。
+</details>
 
-因此本仓库按实测的 **820 版本**记录当前基准，同时说明如何显式派生原 810 ID 子集。没有改动服务器原始数据，也不根据文件夹名称隐式删掉 10 张图像。证据在 [source_inventory.json](docs/source_inventory.json)。
+## 资源与引用
 
-## 两套 SFT 实验不要混用
+- **代码：**已在本仓库公开；新工作流代码的许可证尚待作者选定。
+- **数据：**训练与评测图像、标注、监督样本、manifest、划分和子集 ID 不随源码发布。
+- **模型：**模型权重暂未公开。
+- **论文与引用：**最终出版链接与 BibTeX 待补充，请以正式出版记录为准。
 
-- 论文：2,264 + 5,497 + 13,170 = **20,931** 条描述监督数据。
-- 服务器后续混合训练：额外加入 **3,334** 条检测框输出样本，总计 **24,265**。
-- GroundingDINO：以 3,334 张 train2 图像为主，保留实际源码和配置。
-- RL：论文写明 3,134 个提示、16 个 rollout；当前没有恢复到原铁路专用启动脚本，发布的是明确标记的重建配置与类别奖励插件。
+来源与发布范围见 [NOTICE.md](NOTICE.md)。第三方代码保留各自许可证。
 
-## 发布内容与使用条件
+## 致谢
 
-本仓库提供新的统一 CLI、教程、配置、提示词、必要训练框架源码快照及测试。原始图像、权重、加密文件、聊天记录、网站账号和 API Key 不进入源代码发布包。需要真实训练数据时，另行获取授权的数据或已有的私有复现包。
+RailMind 基于 Qwen3-VL、Gemini、NanoBanana、GroundingDINO、Zuwei Long 和 Wei Li 的 Open-GroundingDino 实现、LLaMA-Factory 及 ms-swift 构建。上游源码信息见 [third_party/source_lock.json](third_party/source_lock.json)。
 
-API 和训练命令默认只检查和展示参数，加 `--execute` 才实际调用。CPU 样例与回归测试已作为发布验证目标；GPU 训练、真实增强 API 和论文指标复现需在相应环境中执行，不能由离线样例代替。
+---
 
-旧 `network_app0.11` 网站不是论文训练主线，也没有搬入包含账号和密钥的旧目录；远端调用通过新的环境变量配置接入。`bank`、`huawei` 等独立项目不属于本仓库。
-
-阅读顺序：[辅助阅读指南](docs/00_reading_guide.md) → [流程](docs/01_workflow.md) → [数据](docs/02_data.md) → [标注](docs/03_data_engine.md) → [增强](docs/04_augmentation.md) → [训练](docs/05_training.md) → [RL](docs/06_rl.md) → [评测](docs/07_evaluation.md) → [SFT/RL 技能图谱](docs/09_sft_rl_skills_and_community.md) → [后训练论文路线](docs/10_post_training_paper_roadmap.md)。
-
-## 数据发布边界
-
-训练集和评测集均不上传，包括图像、标注、教师监督文本、SFT/RL 样本、manifest 和划分/子集 ID 清单。本仓库仅发布方法代码、通用提示词、配置模板及文档；离线示例在运行时生成虚构样例。
+<div align="center">
+<strong>RailMind</strong><br>
+面向铁路基础设施巡检的多模态异常理解与定位。
+</div>
