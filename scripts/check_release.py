@@ -10,12 +10,12 @@ from pathlib import Path
 # Match both the exact repository path and SHA256; do not exempt entire folders.
 PUBLIC_DOC_ASSETS = {
     "docs/assets/railmind-teaser.jpg": "bcf2deabbe9ace6deaf241eed2f1f517655dd6852975be60297fc2a270b51a10",
-    "docs/assets/scenes/catenary-pole.png": "697c8c536986bf9200f77d57e62bd8db0f5743130aa8262b76880da01ffa79aa",
-    "docs/assets/scenes/environment.png": "ae022e55a8d2e9f8025e83a52f350183a069ef9bb2cd4c89d45d5883027659be",
-    "docs/assets/scenes/noise-barrier.png": "61b63348318f2615d728077539c9d0553ae474e76711f6e6401bf36c49101f40",
-    "docs/assets/scenes/power-tower.png": "3e3da02ad9d6671703ca797c54a6297f56aebcd990816b49307c0acac3fd19d3",
-    "docs/assets/scenes/rail-track.png": "c07ebdf13ccfc9077bd321b9aa0b9f7cd0adb1ab49ec8a0a7a31322f8bbf8c63",
-    "docs/assets/scenes/steel-bridge.png": "13bbe2c37393422485d3c23ab0c56d66dc2000121ba9e7360f724cb844266546"
+    "docs/assets/scenes/catenary-pole.png": "5b3b6905c9cb7a165b47512c235d6847a0421aa7a4f74088433b3bdd13783901",
+    "docs/assets/scenes/environment.png": "cdcbe202ba58e48916943e96eb8564a7cd16bfdf4fad176febfbf537726a3fc4",
+    "docs/assets/scenes/noise-barrier.png": "6caa17dfe5e34809d17fcd44ca1bbd18f8d01dbb6f81fc8d26920ca962f6a666",
+    "docs/assets/scenes/power-tower.png": "5d7da8652392cc9c056bfbcc97eb126bba4b2a80bd61752f86caff5cab6fb0b2",
+    "docs/assets/scenes/rail-track.png": "8f636012dac1cad8b47a597a54fe37721ed8ef80f5540c08a578829b36e79972",
+    "docs/assets/scenes/steel-bridge.png": "27cd19220cee921cdef5dd894c8ed9bbb1a97e8505d169651cb2d0c26b99a7ea"
 }
 
 root = Path(__file__).resolve().parents[1]

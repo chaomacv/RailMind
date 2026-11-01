@@ -13,34 +13,28 @@
 <tr>
 <td width="33%" valign="top" align="left">
 <img src="docs/assets/scenes/catenary-pole.png" alt="Catenary Pole: highlighted defect with a color-matched callout." width="100%">
-<h3>Catenary Pole</h3>
 <p>Bird nests and other attachments may compromise overhead electrical clearances. Severe intrusion can contribute to flashover and traction-power interruption.</p>
 </td>
 <td width="33%" valign="top" align="left">
 <img src="docs/assets/scenes/environment.png" alt="Environment: highlighted defect with a color-matched callout." width="100%">
-<h3>Environment</h3>
 <p>Plastic film, waste and intrusive objects may enter the track area or contact electrical equipment. Severe intrusion can disrupt train operation or power supply.</p>
 </td>
 <td width="33%" valign="top" align="left">
 <img src="docs/assets/scenes/noise-barrier.png" alt="Noise Barrier: highlighted defect with a color-matched callout." width="100%">
-<h3>Noise Barrier</h3>
 <p>Panel and column corrosion, together with deteriorated mortar, may weaken barrier integrity. Advanced damage can cause loose or falling components near the railway.</p>
 </td>
 </tr>
 <tr>
 <td width="33%" valign="top" align="left">
 <img src="docs/assets/scenes/power-tower.png" alt="Power Tower: highlighted defect with a color-matched callout." width="100%">
-<h3>Power Tower</h3>
 <p>Bird nests, foreign objects and loose antenna bolts may impair electrical clearances or attachment stability. Severe cases can involve electrical faults or falling components.</p>
 </td>
 <td width="33%" valign="top" align="left">
 <img src="docs/assets/scenes/rail-track.png" alt="Rail Track: highlighted defect with a color-matched callout." width="100%">
-<h3>Rail Track</h3>
 <p>Missing or cracked fasteners may weaken rail restraint and track stability. Widespread or progressive damage can pose a serious risk to safe train running.</p>
 </td>
 <td width="33%" valign="top" align="left">
 <img src="docs/assets/scenes/steel-bridge.png" alt="Steel Bridge: highlighted defect with a color-matched callout." width="100%">
-<h3>Steel Bridge</h3>
 <p>Missing bolts, coating damage and guardrail corrosion may compromise connections and durability. Advanced deterioration can threaten structural or maintenance-access safety.</p>
 </td>
 </tr>
