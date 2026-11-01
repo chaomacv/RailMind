@@ -1,21 +1,24 @@
-<div align="center">
-
-<img src="docs/assets/railmind-header.svg" alt="RailMind — Railway infrastructure intelligence" width="100%">
-
 # RailMind
 
-**A Multimodal Framework for Railway Infrastructure Anomaly Understanding and Localization**
+<div align="center">
 
-Understanding visual evidence. Identifying anomalies. Grounding railway defects.
+## RailMind: Multimodal Reasoning for Railway Infrastructure Security
 
-[Project Page](https://chaomacv.github.io/RAIL-SECURTTY-BENCH/) · [Code](https://github.com/chaomacv/RailMind) · [Benchmark](https://github.com/chaomacv/RAIL-SECURTTY-BENCH) · [Documentation](docs/00_reading_guide.md) · [简体中文](README.zh-CN.md)
+**Chao Ma · Jingxuan Xu · Zhongwei Ren · Tao Ruan · Renshuai Tao · Yunchao Wei**
 
-![Python](https://img.shields.io/badge/Python-3.10%2B-244C75?style=flat-square)
-![Backbone](https://img.shields.io/badge/VLM-Qwen3--VL-244C75?style=flat-square)
-![Grounding](https://img.shields.io/badge/Localization-GroundingDINO-167D8D?style=flat-square)
-![Release](https://img.shields.io/badge/Release-Source_Code-167D8D?style=flat-square)
+[![Project Page](https://img.shields.io/badge/Project-Page-76b900?style=flat-square)](https://chaomacv.github.io/RAIL-SECURTTY-BENCH/)
+[![Paper PDF](https://img.shields.io/badge/Paper-PDF-d95454?style=flat-square)](https://chaomacv.github.io/RAIL-SECURTTY-BENCH/assets/pdf/RailMind.pdf)
+![arXiv Coming soon](https://img.shields.io/badge/arXiv-Coming_soon-b31b1b?style=flat-square)
 
-**Paper:** final publication link pending · **Dataset:** not distributed · **Models:** weights not distributed
+<img src="docs/assets/railmind-teaser.jpg" alt="Six railway inspection scenarios with existing benchmark images and descriptions of defects, potential safety impacts, and severe consequences. No image counts are shown." width="100%">
+
+</div>
+
+*Illustrations adapted from the public Rail-Security-Bench project page. Image overlays are retained from those illustrations and are not presented as new RailMind predictions. Safety consequences are qualitative and depend on defect extent and operating conditions.*
+
+<div align="center">
+
+[Code](https://github.com/chaomacv/RailMind) · [Documentation](docs/00_reading_guide.md) · [简体中文](README.zh-CN.md)
 
 [Overview](#overview) · [Method](#method-overview) · [Results](#main-results) · [Benchmark](#rail-security-bench) · [Quick Start](#quick-start)
 
@@ -93,7 +96,7 @@ A domain-specific benchmark for **railway infrastructure anomaly understanding a
 
 ### Qualitative Results
 
-Real image-level predictions and ground-truth overlays are not included in this source release. For authorized local data, follow the [inference and evaluation guide](docs/07_evaluation.md) to produce predictions.
+The opening teaser reuses public benchmark illustrations. Verified RailMind prediction-versus-ground-truth comparisons are not included in this source release. For authorized local data, follow the [inference and evaluation guide](docs/07_evaluation.md) to produce predictions.
 
 A research comparison should pair the original image, predicted category and evidence, predicted boxes, and verified ground truth; it should include failure cases as well as successful detections. The offline demo below generates synthetic workflow samples, not railway model predictions.
 
