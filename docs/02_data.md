@@ -1,30 +1,33 @@
-# 数据规范与数据集划分
+# Data conventions and dataset splits
 
-## 标准类别
+[English](../README.md) · [简体中文](zh-CN/02_data.md)
 
-类别标识符保持英文，供代码、提示词和评测统一使用。
 
-| 标识符 | 含义 |
+## Standard classes
+
+English identifiers are shared by code, prompts and evaluation.
+
+| Identifier | Meaning |
 |---|---|
-| nest | 接触网杆或电力塔上的鸟巢 |
-| nonut | 钢桥螺母/螺栓缺失 |
-| rustyfence | 桥梁护栏锈蚀 |
-| rustypaint | 钢桥涂层锈蚀 |
-| peeling | 钢桥涂层剥落 |
-| noclip | 钢轨扣件弹条缺失 |
-| snappedclip | 钢轨扣件弹条断裂 |
-| debris | 环境杂物堆积 |
-| plastic | 环境塑料薄膜 |
-| rustypole | 声屏障立柱锈蚀 |
-| agedcement | 声屏障砂浆老化 |
-| rustyplate | 声屏障面板锈蚀 |
-| loosenut | 塔架天线夹具螺母松动 |
+| nest | Bird nest on a catenary pole or power tower |
+| nonut | Missing steel-bridge nut/bolt |
+| rustyfence | Corroded bridge guardrail |
+| rustypaint | Corroded steel-bridge coating |
+| peeling | Peeling steel-bridge coating |
+| noclip | Missing rail fastening clip |
+| snappedclip | Broken rail fastening clip |
+| debris | Accumulated environmental debris |
+| plastic | Environmental plastic film |
+| rustypole | Corroded noise-barrier column |
+| agedcement | Deteriorated noise-barrier mortar |
+| rustyplate | Corroded noise-barrier panel |
+| loosenut | Loose tower antenna-clamp nut |
 
-六类场景为 `steel_bridge`（钢桥）、`rail_track`（轨道）、`environment`（周边环境）、`catenary_pole`（接触网杆）、`noise_barrier`（声屏障）、`power_tower`（电力塔）。服务器中文目录名会显式归一化。COCO 类别 ID 按 `name` 解释，不假设不同数据集使用相同编号。
+The six scenes are `steel_bridge`, `rail_track`, `environment`, `catenary_pole`, `noise_barrier` and `power_tower`. Legacy Chinese directory aliases are explicitly normalized. Interpret COCO categories by `name`; do not assume consistent numeric category IDs across datasets.
 
-## 构建图像清单（manifest）
+## Build an image manifest
 
-将解码后的图像按场景存放。COCO 图像记录需要 `id`、`file_name`、`width`、`height`；实例标注需要图像 ID、类别 ID 和 **xywh 像素坐标**。清单将框转换为 **xyxy 像素坐标**。
+Store decoded images by scene. COCO image entries require `id`, `file_name`, `width` and `height`; annotations require image/category IDs and **xywh pixel boxes**. The manifest converts them to **xyxy pixel boxes**.
 
 ```bash
 python -m railmind manifest --coco data/train/annotations.coco.json \
@@ -35,33 +38,33 @@ python -m railmind verify --manifest data/train/manifest.jsonl --image-root data
 python -m railmind leakage data/train/manifest.jsonl data/test/manifest.jsonl
 ```
 
-未标注图像可使用 `annotations` 为空数组的 COCO 文件。导入后标签为空只表示**没有标注**，不能视为已审核的负样本；审核前不能用作已确认的正常背景或参考图。增强计划需要有人工标注依据的背景/参考清单。负样本进入 SFT 前同样需要人工确认。
+Unlabeled images may use an empty COCO `annotations` array. Empty imported labels mean **unannotated**, not reviewed negatives. Until reviewed, such images cannot serve as confirmed normal backgrounds or references. Augmentation pools require manually supported annotations; negative SFT samples also require review.
 
-以下为虚构格式示例，不是项目数据样本：
+The following is a fictional format example, not a project sample:
 
 ```json
 {"id":"example-01", "image":"rail_track/example.jpg", "scene":"rail_track", "split":"train", "source":"real", "sha256":"SHA256_OF_IMAGE", "width":1920, "height":1080, "gt_labels":["noclip"], "instances":[{"label":"noclip", "bbox":[100,200,160,240]}]}
 ```
 
-图像路径相对于指定根目录，不得使用 `..` 或符号链接越界。导出时按当前机器解析路径；迁移数据后重新导出。生成的绝对训练路径属于本地运行产物，不提交到仓库。
+Image paths are relative to the supplied root; `..` and escaping symlinks are prohibited. Exports resolve paths on the current machine, so re-export after moving data. Generated absolute training paths are local artifacts and must not be committed.
 
-## 泄漏检查与来源关系
+## Leakage and provenance
 
-按航次、线路、序列或来源分组划分，避免近重复图像跨集合。哈希检查能发现完全相同图像，以及已记录的增强背景/参考来源跨集合问题；不能识别视觉相似裁剪，也不能补全缺失的采集元数据。先划分来源组，再生成训练衍生数据。
+Group splits by flight, route, sequence or provenance to prevent near duplicates crossing splits. Hash checks detect identical images and recorded augmentation-background/reference leakage. They cannot recognize visually similar crops or reconstruct missing acquisition metadata. Split source groups before producing training derivatives.
 
-不得用评测图像作为增强背景或参考。合成基准扩展应独立标识，在模型选择前固定。820 条记录本身不能证明新增图像全部真实或全部合成，需保存来源证据。
+Never use evaluation images as augmentation backgrounds or references. Label synthetic benchmark extensions separately and fix them before model selection. A count of 820 alone does not establish whether additional images are real or synthetic; preserve provenance evidence.
 
-## 基准版本
+## Benchmark versions
 
-审核汇总见[来源清单](source_inventory.json)。当前来源 COCO 完整版本有 820 条图像记录。比较用的 810 子集需在对应私有标注文件中显式筛选图像及标注，记录来源文件 SHA256 和子集 ID。不要将该版本的筛选规则套用于其他数据集；历史原始 810 标注文件尚未独立找回。
+See the [inventory](source_inventory.json). The complete audited source COCO has 820 image records. Derive the 810 comparison subset explicitly from the corresponding private annotations, recording the source SHA256 and subset IDs. Do not apply its filtering rule to other datasets. The historical original 810 annotation file has not been independently recovered.
 
-约 62 GiB 私有复现包包含更完整的训练材料，不属于 GitHub 发布内容，也不是运行 CPU 示例的前提。
+The approximately 62 GiB private reproduction package contains additional training materials. It is not part of the GitHub release and is not required for the CPU demo.
 
-训练集、评测集、manifest 和子集 ID 清单均不发布。有授权的本地数据使用者，可在仓库外准备私有 ID 清单：
+Training/evaluation datasets, manifests and subset IDs are not distributed. Authorized local users can prepare a private ID list outside the repository:
 
 ```bash
 python -m railmind subset --manifest data/test/manifest.jsonl \
   --ids /path/to/private/subset_ids.json --output data/test/manifest_810.jsonl
 ```
 
-子集预测必须恰好包含对应 ID，模型输出也需显式筛选。文档默认完整基准仍指私有数据的 820 版本，不代表仓库包含该数据集。
+Subset predictions must contain exactly the selected IDs; filter model outputs explicitly. The default complete benchmark refers to the private 820-image version, not an included dataset.

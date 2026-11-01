@@ -115,9 +115,9 @@ use_detached_boxes_dec_out = False
 use_coco_eval = False
 label_list = ['nest', 'nonut', 'rustyfence', 'rustypaint', 'peeling', 'noclip', 'snappedclip', 'debris', 'plastic', 'rustypole', 'agedcement', 'rustyplate', 'loosenut']
 
-# 训练时的类别文本提示构建方式
-# 'all_class'：使用所有类别作为提示（默认，强化真类别并抑制错误类别）
-# 'gt_only'：仅使用图像中实际出现的类别作为提示
+# Class-text prompt construction during training
+# 'all_class'：Use all classes as prompts (default: reinforce true classes and suppress incorrect classes)
+# 'gt_only'：Use only classes present in the image as prompts
 caption_mode = 'all_class'
 
 dn_scalar = 100

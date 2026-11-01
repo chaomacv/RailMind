@@ -30,7 +30,7 @@ def request_json(url, payload, key, timeout=120):
         raise ValueError("Expected an HTTP(S) service URL without embedded credentials")
     request = urllib.request.Request(url, data=json.dumps(payload).encode("utf-8"),
         headers={"Authorization": "Bearer " + key, "Content-Type": "application/json"})
-    # 只重试处理前已被拒绝的请求；生成结果不确定时不自动重试。
+    # Retry only requests rejected before processing; do not automatically retry an uncertain generation.
     for attempt in range(3):
         try:
             with urllib.request.urlopen(request, timeout=timeout) as response:
@@ -53,7 +53,7 @@ def annotate(manifest, image_root, prompt_path, output, teacher=True, execute=Fa
     model = os.environ.get(prefix + "_MODEL", "")
     if not execute:
         return {"dry_run": True, "images": len(rows), "model": model or "unset", "role": prefix,
-                "output": str(output), "note": "加 --execute 才实际调用 API"}
+                "output": str(output), "note": "Add --execute to make actual API calls"}
     if not url or not model:
         raise ValueError(f"Set {prefix}_BASE_URL and {prefix}_MODEL")
     prompt = Path(prompt_path).read_text(encoding="utf-8")
@@ -71,7 +71,7 @@ def annotate(manifest, image_root, prompt_path, output, teacher=True, execute=Fa
                     or previous.get("prompt_sha256") != prompt_sha or previous.get("endpoint") != url):
                 raise ValueError("Resume provenance mismatch; choose a new output file")
             continue
-        # 不向模型发送真值、生成目标类别或场景元数据。
+        # Do not send ground truth, generation target classes or scene metadata to the model.
         content = [{"type": "text", "text": prompt},
                    {"type": "image_url", "image_url": {"url": image_uri(checked_path(image_root, row["image"]))}}]
         body = request_json(url + "/chat/completions", {"model": model,
@@ -83,7 +83,7 @@ def annotate(manifest, image_root, prompt_path, output, teacher=True, execute=Fa
         result.update({"model": model, "endpoint": url, "prompt_sha256": prompt_sha,
                        "raw_response": text})
         result["teacher" if teacher else "prediction"] = answer
-        # 新回答必须重新审核，即使对应图像之前已通过审核。
+        # Review each new response even if the corresponding image was previously approved.
         if teacher:
             result.pop("review", None)
         done.append(result)

@@ -30,7 +30,7 @@ dist/
 *.orig
 *.rej
 
-# 私有训练/评测记录及样本清单
+# Private training/evaluation records and sample lists
 *.jsonl
 *.csv
 *.tsv

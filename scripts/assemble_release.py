@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""在独立的 RailMind 发布目录中整理经审计的源码快照。"""
+"""Assemble audited source snapshots in a separate RailMind release directory."""
 import argparse
 import ast
 import hashlib
@@ -52,7 +52,7 @@ def main():
             dest.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(path, dest)
             mapping[str(rel)] = sha(dest)
-        records[name] = {"source": origin, "files": mapping, "snapshot_type": "所选源码副本，不代表已确认上游 Git 提交"}
+        records[name] = {"source": origin, "files": mapping, "snapshot_type": "Selected source copy; not a verified upstream Git commit"}
     config = source / "railmind_training_repro_20260815/groundingdino/code/config/cfg_railway.py"
     dest = release / "configs/dino/cfg_railway.py"
     shutil.copy2(config, dest)
@@ -74,11 +74,11 @@ def main():
         "disk_images": sum(p.suffix.lower() in {".jpg", ".jpeg", ".png", ".webp"} for p in coco_path.parent.rglob('*') if p.is_file()),
         "missing_images": missing, "scenes": dict(counts),
         "extended_image_count": len(extra),
-        "original_810_derivation": "按对应来源文件中的图像 ID 显式派生 810 比较子集；历史原始标注文件未独立找回",
+        "original_810_derivation": "Derive the 810-image comparison subset explicitly by image ID from the corresponding source file; the historical original annotation file has not been independently recovered",
         "original_810_count": len(original), "extra_scene_counts": dict(Counter(SCENE_ALIASES.get(im["file_name"].split('/')[0], '') for im in extra))},
         "training": {}, "historical_railway_rl_launch_recovered": False,
-        "paper_identity": "RailMind: Multimodal Reasoning for Railway Infrastructure Security (用户提供的 13 页论文草稿)",
-        "audit_date": "2026-10-07", "publication_status": "本地候选发布目录"}
+        "paper_identity": "RailMind: Multimodal Reasoning for Railway Infrastructure Security (author-provided 13-page manuscript draft)",
+        "audit_date": "2026-10-07", "publication_status": "Local release-candidate directory"}
     for label, rel in [("server_sft", "agent/qwen_vl/data/qwen_sft_mixed_24265_noenc.json"),
                        ("portable_sft", "railmind_training_repro_20260815/qwen3vl/data/qwen_sft_mixed_24265_portable.json")]:
         path = source / rel
@@ -90,9 +90,9 @@ def main():
         audit["training"][label] = {"source": rel, "images": len(values),
             "instances": sum(len(v.get('detection', {}).get('instances', [])) for v in values), "sha256": sha(path)}
     (release / "docs/source_inventory.json").write_text(json.dumps(audit, ensure_ascii=False, indent=2)+"\n", encoding="utf-8")
-    # 数据样本 ID 清单保持私有，不复制到发布目录。
+    # Keep sample-ID lists private; do not copy them into the release directory.
     (release / "third_party/source_lock.json").write_text(json.dumps(records, ensure_ascii=False, indent=2)+"\n", encoding="utf-8")
-    # 不要复制私有论文 PDF、原始图像、用户记录、含凭据的 API 脚本或模型权重。
+    # Do not copy private manuscript PDFs, raw images, user records, API scripts containing credentials or model weights.
     for folder in ["configs", "prompts", "training"]:
         shutil.copytree(release / folder, release / "railmind/assets" / folder, dirs_exist_ok=True)
     secrets = []

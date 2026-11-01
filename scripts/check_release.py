@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""检查发布文件、文档链接、源码哈希及常见凭据模式。"""
+"""Check release files, documentation links, source hashes and common credential patterns."""
 import ast
 import hashlib
 import json

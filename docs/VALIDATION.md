@@ -1,32 +1,39 @@
-# 发布验证记录
+# Release validation records
 
-项目要求 Python >=3.10。以下区分历史服务器验证、GitHub CI 与尚未验证的 GPU/API 环节。
+[English](../README.md) · [简体中文](zh-CN/VALIDATION.md)
 
-## 历史服务器验证
 
-2026-10-07 在来源服务器使用 Python 3.14.6 验证不依赖第三方包的 CPU 流程：
+RailMind requires Python >=3.10. Historical server checks, GitHub CI and unverified GPU/API work are distinguished below.
 
-- CPU 虚构样例流程通过，未调用 API 或进行 GPU 训练。
-- 27 项回归测试通过，覆盖数据导出、奖励、框匹配、格式错误、划分/来源泄漏、审核哈希、断点续接和提供方任务 ID 持久化。
-- 独立虚拟环境中的可编辑安装通过。
-- 安装后的命令行帮助与离线示例通过。
-- wheel 构建、独立安装及在源码目录外执行示例通过。
-- 发布扫描覆盖 Python/JSON 语法、文档链接、常见凭据模式和第三方源码哈希。
-- 第三方框架快照整理了 738 个源文件，保留上游许可证与逐文件 SHA256。
-- 私有基准审计：820 条图像记录、820 张图像、2,083 个标注，无缺失引用。
-- 私有检测 train2 审计：3,334 张图像、10,613 个标注。
+## Historical server checks
 
-## 2026-10-20 源码发布验证
+On 2026-10-07, the source server used Python 3.14.6 to validate the dependency-free CPU workflow:
 
-服务器候选版本再次通过 27 项测试、发布扫描及离线示例。发布前额外排除数据子集 ID 清单，包括安装包资源目录中的副本，仅保留来源汇总统计。
+- Synthetic CPU demo passed without API calls or GPU training.
+- 27 regression tests passed, covering export, rewards, box matching, invalid formats, split/lineage leakage, review hashes, resume handling and provider task-ID persistence.
+- Editable installation in a separate virtual environment passed.
+- Installed CLI help and offline demo passed.
+- Wheel building, isolated installation and demo execution outside the source directory passed.
+- Release scanning checked Python/JSON syntax, documentation links, credential patterns and upstream hashes.
+- Framework snapshots contained 738 source files with upstream licenses and per-file SHA256.
+- Private benchmark audit: 820 records, 820 images and 2,083 annotations, with no missing references.
+- Private detector train2 audit: 3,334 images and 10,613 annotations.
 
-首次源码发布提交的 GitHub CI 在 Python 3.10、3.11、3.12 下全部成功，覆盖安装、27 项测试、离线示例及发布扫描。记录见 [GitHub Actions](https://github.com/chaomacv/RailMind/actions/runs/39425682658)。
+## 2026-10-20 source-release validation
 
-训练集、评测集及其清单不发布。CUDA 算子、所有 GPU 依赖组合、真实 NanoBanana/教师服务和历史论文训练均不在上述通过范围内。
+The server candidate again passed 27 tests, release scanning and the offline demo. Sample/subset ID lists, including packaged-resource copies, were excluded before release; only provenance statistics were retained.
 
-## 本地复查
+The initial release passed GitHub CI on Python 3.10, 3.11 and 3.12: installation, 27 tests, offline demo and scanning. See the [historical run](https://github.com/chaomacv/RailMind/actions/runs/39425682658).
 
-在源码目录运行：
+## Public documentation asset checks
+
+Seven additional regression tests validate the exact-path/content-hash exception for public README illustrations while ensuring that replacements, unlisted images, training records, model payloads and credentials remain blocked. The corresponding [CI run](https://github.com/chaomacv/RailMind/actions/runs/41305630035) passed on Python 3.10, 3.11 and 3.12.
+
+Training/evaluation datasets and manifests remain excluded. These checks do not validate CUDA operators, all GPU dependency combinations, live NanoBanana/teacher services or historical paper training.
+
+## Local checks
+
+Run from the source root:
 
 ```bash
 python -m unittest discover -s tests -v
@@ -34,4 +41,4 @@ python -m railmind demo --output outputs/new-validation-run
 python scripts/check_release.py
 ```
 
-只发布源码、配置与文档。`local/`、`outputs/`、缓存、虚拟环境、生成数据和权重排除在外。
+Release source, configuration and documentation, plus the explicitly approved public illustrations. Exclude private local material, outputs, caches, virtual environments, generated datasets and weights.

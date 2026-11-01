@@ -1,5 +1,5 @@
 {
-  "status": "依据 ms-swift GSPO 源码示例重建；精确铁路启动配置未恢复",
+  "status": "Reconstructed from the ms-swift GSPO source example; the exact railway launch configuration has not been recovered",
   "expected_records": 3134,
   "effective_batch_size": 64,
   "config": {

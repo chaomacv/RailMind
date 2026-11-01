@@ -1,7 +1,9 @@
-# 来源致谢与发布范围
+# Attribution and release scope
 
-RailMind 工作流代码根据作者已有实验与论文材料整理。新代码许可证仍待作者选定，本仓库不擅自授予尚未确认的再分发许可。后续增加示例、数据或权重时需另行核对授权。
+RailMind workflow code was assembled from the authors' existing experiments and manuscript materials. A license for the new code remains to be selected by the authors; this repository does not grant unconfirmed redistribution rights. Any later release of examples, datasets or weights requires a separate authorization review.
 
-第三方源码保留各自许可证与版权声明，文件哈希见 `third_party/source_lock.json`。检测器采用 Zuwei Long、Wei Li 的 Open-GroundingDino 实现，并致谢 IDEA Research 及上游列出的依赖。LLaMA-Factory、ms-swift 保留上游来源和许可证。
+Third-party sources retain their licenses and copyright notices. Per-file hashes are recorded in `third_party/source_lock.json`. The detector uses the Open-GroundingDino implementation by Zuwei Long and Wei Li, with acknowledgments to IDEA Research and the dependencies listed upstream. LLaMA-Factory and ms-swift retain upstream provenance and licenses.
 
-训练集、评测集、私有铁路图像、标注、监督样本、manifest、划分和子集 ID 清单不属于源码发布。加密图像、身份认证记录、网站聊天记录、API 凭据、权重和私有论文 PDF 同样排除。约 62 GiB 离线训练包是独立的私有复现材料，不上传 GitHub。
+Training/evaluation datasets, private railway images, annotations, supervision samples, manifests, split IDs and subset-ID lists are excluded from the source release. Encrypted images, authentication records, website conversations, API credentials, weights and private manuscript PDFs are also excluded. The approximately 62 GiB offline training package is separate private reproduction material and is not uploaded to GitHub.
+
+The public README illustrations are a limited documentation exception: the release scanner accepts only their explicitly listed paths and matching content hashes. This exception does not authorize redistribution of the underlying datasets.

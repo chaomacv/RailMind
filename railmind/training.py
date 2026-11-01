@@ -66,7 +66,7 @@ def launch(kind, recipe_path, model, dataset, output, execute=False, framework_r
                    "--pretrain_model_path", str(Path(checkpoint).resolve()),
                    "--options", "text_encoder_type=" + str(Path(text_encoder).resolve()), "--save_log"]
     result = {"dry_run": not execute, "kind": kind, "command": shlex.join(command), "recipe": recipe,
-              "note": "实际执行时生成 SFT YAML 配置" if kind == "sft" else "GPU 训练需在对应框架的独立环境执行"}
+              "note": "Generate the SFT YAML configuration during execution" if kind == "sft" else "Run GPU training in the corresponding framework's separate environment"}
     if not execute:
         return result
     if kind in {"sft", "rl"} and not Path(model).is_dir():

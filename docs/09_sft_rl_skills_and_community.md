@@ -1,93 +1,73 @@
-# SFT/RL 技能图谱与社区工具
+# SFT/RL skills and community tools
 
-本文面向了解 Python/PyTorch、希望将 RailMind 迁移到自有领域数据的读者，梳理后训练所需知识，帮助理解 SFT/RL 命令背后的机制。
+[English](../README.md) · [简体中文](zh-CN/09_sft_rl_skills_and_community.md)
 
-RailMind 用 SFT 迁移领域知识并约束输出格式，再可选地用类别奖励 RL 改进审核合成图像上的最终类别决策。定位模型独立训练，因为定位质量依赖实例框，而不只依赖语言监督。
 
-## 为什么需要这个板块
+This guide is for readers familiar with Python/PyTorch who want to adapt RailMind to their own domain. It explains the mechanisms behind the post-training commands.
 
-RailMind 同时提供一条视觉语言模型（VLM）后训练工作流：
+RailMind uses SFT for domain knowledge and output structure, then optionally uses class-reward RL to improve final decisions on reviewed synthetic images. Localization trains separately because it requires instance boxes, not language supervision alone.
 
-- 从已有图像和专家提示词构建领域监督。
-- 用更强的教师模型生成初版描述、风险解释和类别证据。
-- 在生成监督与训练之间加入人工审核。
-- 用 SFT 教会模型领域表达和回答格式。
-- 仅在奖励清晰且可自动核对时引入 RL。
-- 分别评测分类、定位及失败模式。
+## Why this guide exists
 
-SFT 适合模仿与领域适配；RL 适合在模型已理解任务后优化狭窄、可测量的行为。不要期待 RL 弥补数据质量差、提示词弱或标签定义不清的问题。
+The VLM workflow covers domain supervision from images and expert prompts; stronger teachers generate initial descriptions, risk explanations and class evidence; human review precedes training; SFT teaches domain expression and answer format; RL is introduced only when reward is clear and automatically checkable; classification, localization and failures are evaluated separately.
 
-## 技能矩阵
+SFT supports imitation and domain adaptation. RL optimizes narrow, measurable behavior after the model understands the task. RL cannot compensate for poor data, weak prompts or unclear class definitions.
 
-| 方向 | 需要理解的内容 | RailMind 提供的入口 |
+## Skills matrix
+
+| Area | Concepts | RailMind entry points |
 |---|---|---|
-| 数据工程 | JSONL、图像哈希、集合划分、泄漏检查 | `manifest`、`verify`、`leakage`、审核格式 |
-| 教师标注 | 提示词、结构化 JSON、证据字段、人工审核 | `annotate`、`review`、`prompts/teacher.txt` |
-| SFT | 对话模板、多模态消息、LoRA、有效批量、截断长度 | `export-sft`、`configs/sft/*.json` |
-| RL | 奖励函数、最终答案解析、rollout 数量、格式错误 | `export-rl`、`training/railway_reward.py`、`configs/rl/*.json` |
-| 检测 | ODVG/COCO 导出、类别映射、验证协议 | `export-dino`、`configs/dino/*` |
-| 评测 | Macro-F1、场景平均、IoU 匹配、重复检测 | `evaluate`、`docs/07_evaluation.md` |
-| 工程 | 命令预览、环境隔离、源码校验、测试 | `train`、`scripts/check_release.py`、`tests/` |
+| Data engineering | JSONL, hashes, splits, leakage | `manifest`, `verify`, `leakage`, review schema |
+| Teacher annotation | Prompts, structured JSON, evidence, review | `annotate`, `review`, `prompts/teacher.txt` |
+| SFT | Chat templates, multimodal messages, LoRA, batch, cutoff | `export-sft`, `configs/sft/*.json` |
+| RL | Reward, final-answer parsing, rollouts, invalid formats | `export-rl`, `training/railway_reward.py`, `configs/rl/*.json` |
+| Detection | ODVG/COCO export, classes, validation | `export-dino`, `configs/dino/*` |
+| Evaluation | Macro-F1, scene averages, IoU, duplicates | `evaluate`, `docs/07_evaluation.md` |
+| Engineering | Previews, isolation, source checks, tests | `train`, `scripts/check_release.py`, `tests/` |
 
-## SFT：先理解什么
+## Understanding SFT
 
-开始 GPU 训练前先回答：
+Before GPU training, ask what behavior the model should imitate, which fields are trusted labels rather than generated suggestions, and how you will detect shortcuts.
 
-1. 模型究竟应该模仿什么行为？
-2. 哪些字段是可信标签，哪些只是生成的提示？
-3. 如何发现模型学到了错误捷径？
+The objective is to inspect railway images, identify visible defects and explain evidence in a stable format. The 20,931-record paper recipe emphasizes descriptions; the later 24,265-record mixture includes 3,334 direct-box-output samples. Report these separately.
 
-RailMind 的 SFT 目标是观察铁路图像、识别可见缺陷并按稳定格式解释证据。论文的 20,931 条配置以描述监督为主；后续服务器的 24,265 条配置另含 3,334 条直接框输出样本，必须作为不同实验报告。
+Essential practices:
 
-应掌握的技能：
+- Use the base model's chat template; Qwen3-VL data cannot automatically use an older Qwen2-VL template.
+- Keep paths portable and record image hashes.
+- Split training, validation and test data before teacher calls.
+- Review generated labels before treating them as training targets.
+- Record effective batch as `GPU count × per-device batch × gradient accumulation`.
+- Save resolved configuration, data hashes, seeds, framework versions and base-model identifiers.
+- Treat LoRA rank, learning rate, cutoff length and image-pixel budget as experiment variables.
 
-- 了解基座模型的对话模板，Qwen3-VL 数据不能默认套用旧 Qwen2-VL 模板。
-- 保持图像路径可迁移，并在清单中记录哈希。
-- 教师调用前就划分训练、验证和测试集。
-- 生成标签成为训练目标前必须审核。
-- 有效批量按 `GPU 数 × 单卡批量 × 梯度累积步数` 记录。
-- 保存解析配置、数据哈希、种子、框架版本和基座模型标识。
-- 将 LoRA rank、学习率、截断长度、图像像素预算作为实验变量。
+Typical failures include learning directory/filename shortcuts, invisible classes in teacher text, unreviewed generation targets treated as truth, box-output data mixed into description-only comparisons, and longer attractive answers with worse final-class precision.
 
-常见失败模式：
+## Understanding RL
 
-- 模型学到目录名、文件命名规律，而非视觉证据。
-- 教师文本包含图像不可见的类别。
-- 未审核就把生成目标当成真值。
-- 将框输出混入描述 SFT，却与纯描述基线直接比较。
-- 回答更长、观感更好，最终类别精确率却下降。
+Start after SFT reliably follows the output format. The reward compares final predicted and reviewed class sets: exact match earns `1.0`, a strict superset earns `0.5`, and omissions, unknown classes, invalid JSON or final-format errors earn `0.0`.
 
-## RL：先理解什么
+This cheap deterministic reward targets class selection. It does not measure localization, risk explanations or reasoning quality; evaluate those separately.
 
-SFT 模型能稳定遵循任务格式后再引入 RL。RailMind 的奖励只比较最终预测类别集合和审核类别集合：
+- Parse final answers only, not class mentions in reasoning.
+- Record invalid-format rate, exact match, superset frequency and mean reward together.
+- Save separate SFT, SFT+GRPO and SFT+GSPO checkpoints.
+- Evaluate all variants on the same manifest.
+- Monitor overprediction: partial superset reward may raise recall while harming precision.
+- Validate framework behavior on small examples before considering a custom RL trainer.
 
-- 完全匹配为 `1.0`。
-- 严格超集为 `0.5`。
-- 漏报、未知类别、无效 JSON 或最终格式错误为 `0.0`。
+Retained ms-swift GRPO/GSPO examples differ in importance sampling. The manuscript and recovered code are not fully aligned; the repository records the difference rather than inventing an unverified optimizer.
 
-这个奖励计算便宜、确定性强，对齐最终类别选择，但不衡量定位、风险解释或推理文字的质量，这些要独立评测。
+## Suggested learning sequence
 
-应掌握的技能：
-
-- 只解析最终答案，推理文字提到的类别不算预测。
-- 同时记录格式错误率、完全匹配率、超集比例及平均奖励。
-- 分开保存 SFT、SFT+GRPO、SFT+GSPO checkpoint。
-- 所有变体使用同一评测清单。
-- 关注多报：`0.5` 超集奖励可能提高召回，却损害精确率。
-- 先用小样例核对框架行为，再考虑自定义 RL 训练器。
-
-所保留 ms-swift 快照中的 GRPO/GSPO 在重要性采样方式上不同。论文表述和恢复的代码不完全一致，因此仓库记录差异，不另造未经验证的优化器。
-
-## 建议学习路线
-
-从 CPU 示例开始：
+Start with the CPU example:
 
 ```bash
 python -m railmind demo --output outputs/demo
 python -m unittest discover -s tests -v
 ```
 
-查看生成文件：
+Inspect:
 
 - `outputs/demo/manifest.jsonl`
 - `outputs/demo/reviewed.jsonl`
@@ -95,60 +75,43 @@ python -m unittest discover -s tests -v
 - `outputs/demo/rl/train.jsonl`
 - `outputs/demo/eval/metrics.json`
 
-再逐步迁移到授权的真实数据：
+Then migrate incrementally to authorized real data:
 
-1. 构建清单，核对划分。
-2. 预览教师请求，再运行少量真实 API 调用。
-3. 审核并导出 SFT。
-4. 运行小规模 LoRA，评测格式与类别行为。
-5. 加入审核过的合成图像。
-6. 导出 RL 提示，做短程完整性检查。
-7. 在同一基准上比较 SFT、GRPO、GSPO。
+1. Build manifests and check splits.
+2. Preview teacher requests, then try a small number of live calls.
+3. Review and export SFT data.
+4. Run a small LoRA experiment and evaluate format/class behavior.
+5. Add reviewed synthetic images.
+6. Export RL prompts and perform a short integrity check.
+7. Compare SFT, GRPO and GSPO on the same benchmark.
 
-目标是在昂贵训练前发现数据和奖励问题。后训练中的数据审计往往比盲目延长 GPU 训练更有效。
+Find data/reward problems before expensive training. Auditing post-training data can be more effective than extending GPU runs without a diagnosis.
 
-## 社区与工具链
+## Community and toolchain
 
-以下项目族可作为替换组件或扩展工作流的入口，具体版本能力需结合所用环境核对。
+These project families are possible replacement components or extensions; verify version capabilities against your environment.
 
-| 主题 | 项目与社区 | 重点检查 |
+| Topic | Projects/community | What to check |
 |---|---|---|
-| Qwen VLM SFT | Qwen 文档、LLaMA-Factory、ms-swift | 模板、图像处理器、LoRA 合并、多卡启动 |
-| LLM/VLM RLHF/RLAIF | ms-swift、TRL、OpenRLHF | GRPO/GSPO/PPO、奖励插件接口、rollout 批量、日志 |
-| 合成数据 | 图像编辑 API、NanoBanana 类流程、审核工具 | 提示词复现、任务 ID、续接、人工审核记录 |
-| 视觉定位 | GroundingDINO/Open-GroundingDino、COCO/ODVG 工具 | 类别映射、短语提取、IoU、checkpoint 兼容 |
-| 评测 | COCO 评测、宏平均 F1 脚本、错误分析笔记本 | 类别宏平均与场景平均、重复框、空预测 |
-| 数据管理 | DVC 类清单、校验和、数据集说明 | 哈希、划分记录、私有数据边界、许可 |
+| Qwen VLM SFT | Qwen documentation, LLaMA-Factory, ms-swift | Templates, processors, LoRA merging, multi-GPU launch |
+| LLM/VLM RLHF/RLAIF | ms-swift, TRL, OpenRLHF | Algorithms, reward interfaces, rollout batches, logging |
+| Synthetic data | Editing APIs, NanoBanana-style pipelines, review tools | Prompt provenance, task IDs, resume, manual review |
+| Grounding | GroundingDINO/Open-GroundingDino, COCO/ODVG tools | Classes, phrase extraction, IoU, checkpoint compatibility |
+| Evaluation | COCO tools, macro-F1 scripts, analysis notebooks | Class/scene averages, duplicates, empty predictions |
+| Data management | DVC-style manifests, checksums, dataset cards | Hashes, splits, private-data boundaries, licensing |
 
-复制社区命令前检查：
+Before copying a command, check whether the model family/template and multimodal format match, whether “batch” means per-device/gradient/rollout batch, and whether reward parses the final answer, full response or reasoning. These distinctions often explain different outcomes from superficially similar commands.
 
-- 基座模型系列和模板是否相同？
-- 多模态消息格式是否相同？
-- batch 指单卡批量、梯度批量还是 rollout 批量？
-- 奖励解析最终答案、完整回答，还是推理文字？
+## RailMind priorities
 
-这些细节往往解释了看似相似的训练命令为何产生不同结果。
+- SFT transfers inspection terminology, defect classes and answer structure to Qwen3-VL.
+- NanoBanana expands rare visual cases; all retained synthetic images require review.
+- RL is optional class-decision optimization, not a replacement for domain learning.
+- GroundingDINO handles localization, evaluated by IoU matching.
+- Report 20,931-record SFT, 24,265-record mixed SFT and the paper's 3,134-prompt RL setting separately.
 
-## RailMind 的应用重点
+Potential additions include runtime-generated fictional teaching examples, experiment cards with data/prompt hashes and reward versions, class-confusion/failure browsers and a validated GPU container. Research datasets and sample-ID lists remain private.
 
-- SFT 将铁路巡检术语、缺陷类别和回答结构迁移到 Qwen3-VL。
-- NanoBanana 扩充长尾视觉案例，保留的合成图像均需审核。
-- RL 是可选的类别决策优化阶段，不能替代领域知识学习。
-- GroundingDINO 负责定位，应按 IoU 匹配评测。
-- 20,931 条 SFT、24,265 条混合 SFT 和论文 3,134 条 RL 提示配置分别报告。
+## Reading checklist
 
-后续可补充运行时生成的虚构教学样例、记录数据/提示词哈希和奖励版本的实验卡、分类混淆与失败案例浏览工具，以及一套验证过的 GPU 容器配置。项目训练集、评测集及样本清单仍不发布。
-
-## 阅读清单
-
-完整训练前依次阅读：
-
-1. `docs/02_data.md`
-2. `docs/03_data_engine.md`
-3. `docs/04_augmentation.md`
-4. `docs/05_training.md`
-5. `docs/06_rl.md`
-6. `docs/07_evaluation.md`
-7. `docs/08_reproducibility.md`
-
-本文将操作文档与后训练知识联系起来，帮助读者迁移到新的巡检领域。
+Before full training, read `docs/02_data.md` through `docs/08_reproducibility.md` in order. This guide connects operational documentation to post-training concepts for transfer to new inspection domains.

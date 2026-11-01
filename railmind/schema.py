@@ -13,7 +13,7 @@ SCENES = (
     "noise_barrier", "power_tower",
 )
 SCENE_ALIASES = dict(zip(
-    ("钢架桥", "轨道", "环境", "接触网杆", "声屏障", "铁塔"), SCENES,
+    ("\u94a2\u67b6\u6865", "\u8f68\u9053", "\u73af\u5883", "\u63a5\u89e6\u7f51\u6746", "\u58f0\u5c4f\u969c", "\u94c1\u5854"), SCENES,
 ))
 DESCRIPTIONS = {
     "nest": "bird nest on a catenary pole or power tower",
@@ -122,7 +122,7 @@ def bbox(value, width, height):
 
 
 def parse_answer(text):
-    """只解析明确的最终 JSON，不解析分析文字中的类别。"""
+    """Parse explicit final JSON only; do not extract predicted classes from analysis prose."""
     text = text.strip()
     if "<answer>" in text:
         text = text.split("<answer>", 1)[1].split("</answer>", 1)[0].strip()

@@ -1,5 +1,5 @@
 {
-  "status": "框架重建配置；原始铁路专用启动配置未恢复",
+  "status": "Reconstructed framework configuration; the original railway-specific launch configuration has not been recovered",
   "expected_records": 3134,
   "effective_batch_size": 64,
   "config": {

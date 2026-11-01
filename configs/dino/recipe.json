@@ -1,5 +1,5 @@
 {
-  "status": "匹配 cfg_railway.py 源码；实际验证集版本以 datasets.json 为准",
+  "status": "Matches cfg_railway.py; datasets.json determines the actual validation-set version",
   "expected_training_images": 3334,
   "expected_instance_annotations": 10613,
   "epochs": 30,

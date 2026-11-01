@@ -1,3 +1,3 @@
-"""RailMind 研究工具：可迁移的工作流组件，不提供在线模型服务。"""
+"""RailMind research tools: portable workflow components, without an online model service."""
 
 __version__ = "0.1.0"

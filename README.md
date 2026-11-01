@@ -155,9 +155,9 @@ Real model inference and training require separate environments, authorized data
 | [Reading guide](docs/00_reading_guide.md) | [Teacher data engine](docs/03_data_engine.md) | [Inference & evaluation](docs/07_evaluation.md) |
 | [End-to-end workflow](docs/01_workflow.md) | [NanoBanana augmentation](docs/04_augmentation.md) | [Reproducibility audit](docs/08_reproducibility.md) |
 | [Data conventions](docs/02_data.md) | [SFT & detector training](docs/05_training.md) | [SFT/RL skills & tools](docs/09_sft_rl_skills_and_community.md) |
-| [中文项目说明](README.zh-CN.md) | [GRPO / GSPO](docs/06_rl.md) | [Post-training paper roadmap](docs/10_post_training_paper_roadmap.md) |
+| [Chinese README](README.zh-CN.md) | [GRPO / GSPO](docs/06_rl.md) | [Post-training paper roadmap](docs/10_post_training_paper_roadmap.md) |
 
-The detailed tutorials currently use Chinese.
+The detailed tutorials are available in English.
 
 <details>
 <summary><strong>Repository map</strong></summary>

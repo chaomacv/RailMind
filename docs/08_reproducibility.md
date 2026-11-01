@@ -1,48 +1,51 @@
-# 复现审计与发布状态
+# Reproducibility audit and release status
 
-训练集和评测集均不发布。CPU 数据/评测测试证明的是工作流正确性，不能证明 GPU 训练成功或论文结果准确。
+[English](../README.md) · [简体中文](zh-CN/08_reproducibility.md)
 
-## 已恢复的材料
 
-| 项目 | 依据与状态 |
+Training and evaluation datasets are not released. CPU data/evaluation tests validate workflow behavior, not successful GPU training or the accuracy of paper results.
+
+## Recovered materials
+
+| Item | Evidence and status |
 |---|---|
-| 当前基准 | 820 条 COCO 图像记录、820 张图像、2,083 个标注，无缺失引用 |
-| 场景数量 | 与论文的 275/88/128/11/227/91 一致 |
-| 810 子集 | 可显式派生比较子集；历史原始文件尚未独立找回 |
-| 后续混合 Qwen SFT | 24,265 条记录，已有可迁移源码/配置 |
-| 论文 SFT | 描述为 20,931 条；精确历史启动配置未恢复 |
-| GroundingDINO | 已恢复 train2 源码、私有标注/配置与必要训练代码 |
-| NanoBanana | 已恢复同场景生成实现、异步协议和 13 类提示词 |
-| RL | 已恢复 ms-swift 引擎/示例；原铁路启动脚本和精确 3,134 提示数据集未确认 |
-| 模型权重与数据 | 保持私有、不进仓库；离线复现包是独立材料 |
+| Current benchmark | 820 COCO records, 820 images, 2,083 annotations, no missing references |
+| Scene counts | Match the paper's 275/88/128/11/227/91 |
+| 810 subset | Explicitly derivable comparison subset; historical original file not independently recovered |
+| Later mixed Qwen SFT | 24,265 records with portable source/configuration |
+| Paper SFT | Described as 20,931 records; exact historical launch not recovered |
+| GroundingDINO | train2 source, private annotations/configuration and necessary training code recovered |
+| NanoBanana | Same-scene generation, asynchronous protocol and 13-class prompts recovered |
+| RL | ms-swift engine/examples recovered; original railway launch and exact 3,134-prompt dataset unconfirmed |
+| Weights and data | Remain private; the offline reproduction package is separate |
 
-数量与标注哈希见[来源清单](source_inventory.json)，逐文件框架哈希见 `third_party/source_lock.json`。哈希标识复制的源码内容，不证明 GPU 环境可运行。
+Counts and annotation hashes appear in the [inventory](source_inventory.json). Framework file hashes are in `third_party/source_lock.json`. Hashes identify retained content; they do not establish GPU compatibility.
 
-## 与论文草稿的重要差异
+## Important differences from the manuscript draft
 
-- 旧目录名写 810，当前内容却与论文 820 图像基准对应。
-- 后续混合 SFT 在 20,931 条描述之外增加 3,334 条框输出样本，不能用该配置声称得到论文描述监督结果。
-- 论文学习率为 5e-6，可迁移 LoRA 配置为 1e-5，另一份旧配置为 5e-5，分别保留。
-- 论文将 GSPO 描述为绝对值基线，恢复的引擎示例使用序列级重要性采样。以实际框架语义为准，论文说明需另行统一。
-- 重建结果表前需统一场景平均、类别宏平均与汇总 P/R 调和平均的定义。
-- 部分旧脚本含无效 `zcy` Conda 路径及硬编码密钥，发布版本使用当前解释器和环境变量。
-- 旧网站 Qwen2.5 端点是独立部署，不等于论文 Qwen3-VL 训练材料；其 MinIO 路由故障不能证明论文 checkpoint 缺失。
+- A legacy directory says 810, while its contents match the paper's 820-image benchmark.
+- Later mixed SFT adds 3,334 box-output records to 20,931 descriptions. It cannot establish the paper's description-supervision result.
+- The paper learning rate is 5e-6, the portable LoRA recipe uses 1e-5, and another historical recipe uses 5e-5. Preserve their identities.
+- The paper describes GSPO using an absolute-value baseline; recovered engine examples use sequence-level importance sampling. Follow actual framework semantics and reconcile the manuscript separately.
+- Align scene-average, class-macro and harmonic aggregate P/R definitions before rebuilding result tables.
+- Legacy scripts contained invalid `zcy` Conda paths and hardcoded credentials; released code uses the current interpreter and environment variables.
+- The older website's Qwen2.5 endpoint is a separate deployment, not the paper's Qwen3-VL training setup. Its MinIO routing failure does not prove a missing research checkpoint.
 
-## 发布范围
+## Release scope
 
-包含：统一 CLI、数据格式定义、通用提示词、实验配置、奖励插件、评测、回归测试、文档及必要第三方源码与许可证。
+Included: unified CLI, data schemas, generic prompts, experiment recipes, reward plugin, evaluation, regression tests, documentation and necessary third-party source/licenses.
 
-排除：训练集/评测集的图像、标签、教师监督、SFT/RL 样本、manifest、划分及子集 ID 清单；以及 `.enc` 文件、权重、API Key、Cloudflare Token、校园网凭据、网站账号/聊天记录、私有论文 PDF、银行/RAG 子项目、批量实验结果和不完整压缩文件。
+Excluded: training/evaluation images, labels, teacher supervision, SFT/RL samples, manifests, split/subset IDs, encrypted files, weights, credentials, website accounts/conversations, private manuscript PDFs, banking/RAG projects, bulk experiment results and incomplete archives. Public README illustrations are separately approved documentation assets, checked by exact path and hash.
 
-不要上传父级服务器 `RailMind/` 目录。约 62 GiB 离线包是更完整的私有训练材料，不是 GitHub 提交，也不保证包含完整 RL 或全部论文消融。
+Do not upload the parent server `RailMind/` directory. The approximately 62 GiB offline package contains additional private training material; it is not a GitHub commit and does not guarantee complete RL or paper ablations.
 
-## 仍需完善的发布事项
+## Remaining release decisions
 
-新代码许可证待作者选定；后续如发布示例、数据或权重，需另行确认授权。模型官方获取方式、最终论文引用及 GPU 依赖环境也需明确。这些是未完成事项，不视为已经验证。当前作者只授权发布源码，数据始终保留在私有环境。
+The new-code license requires author selection. Later examples, datasets or weights need separate authorization checks. Official model acquisition, final citation and GPU dependency environments also need clarification. These are pending, not validated. Research datasets remain private in the current release.
 
-## 验证层级
+## Validation levels
 
-1. **CPU 工作流：**示例、解析与导出、奖励、划分泄漏和评测测试。
-2. **模拟 API 协议：**请求结构、不含凭据的参数预览与续接检查，未调用付费服务。
-3. **框架启动：**可执行文件/配置解析及命令预览。保留源码快照，未在本轮编译 CUDA 或执行训练。
-4. **论文复现：**需要授权私有数据、实际 checkpoint/环境版本、历史启动细节及统一指标协议，前三层不能证明此层完成。
+1. **CPU workflow:** demo, parsing/export, rewards, leakage checks and metrics.
+2. **Mock API protocols:** request structure, credential-free previews and resume checks; no paid calls.
+3. **Framework launch:** executable/configuration parsing and command previews; no CUDA compilation or training established by source assembly.
+4. **Paper reproduction:** authorized private data, checkpoints, environment versions, historical launch details and consistent metrics are required. The first three levels do not establish this one.

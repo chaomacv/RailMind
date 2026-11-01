@@ -9,7 +9,7 @@ from .schema import save
 
 
 def fixture_png(path, anomaly):
-    """程序生成的示意样例，不分发真实铁路图像。"""
+    """Programmatically generated illustrations; no real railway images are distributed."""
     path.parent.mkdir(parents=True, exist_ok=True)
     def chunk(kind, value):
         return struct.pack(">I", len(value)) + kind + value + struct.pack(">I", zlib.crc32(kind + value) & 0xffffffff)
@@ -45,7 +45,7 @@ def demo(output):
     decisions = []
     for row in rows:
         row["teacher"] = {"scene": row["scene"], "anomaly_classes": row["gt_labels"],
-                          "evidence": "仅为程序生成的示意样例，不是教师模型结果。",
+                          "evidence": "Programmatically generated illustration, not a teacher-model result.",
                           "risk": "not_assessed"}
         decisions.append({"id": row["id"], "sha256": row["sha256"], "approved": True,
                           "verified_labels": row["gt_labels"], "reviewer": "offline-demo-fixture"})
@@ -63,6 +63,6 @@ def demo(output):
     reward = category_reward(json.dumps({"anomaly_classes": ["nonut"]}), json.dumps({"anomaly_classes": ["nonut"]}))
     assert result["detection"]["micro"]["f1"] == 1.0 and reward == 1.0
     summary = {"offline_demo": "PASS", "images": 2, "reward": reward, "output": str(root),
-               "note": "示例指标不是论文结果；未调用 API、使用 GPU 或执行训练。"}
+               "note": "Demo metrics are not paper results; no API calls, GPU execution or training were performed."}
     save(root / "summary.json", summary)
     return summary

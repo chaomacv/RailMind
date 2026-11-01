@@ -1,5 +1,5 @@
 {
-  "status": "由离线可迁移复现包配置适配",
+  "status": "Adapted from the portable offline reproduction-package configuration",
   "expected_records": 24265,
   "effective_batch_size": 32,
   "config": {

@@ -46,7 +46,7 @@
 
 <div align="center">
 
-[代码](railmind/) · [文档](docs/00_reading_guide.md) · [English](README.md) · **简体中文**
+[代码](railmind/) · [文档](docs/zh-CN/00_reading_guide.md) · [English](README.md) · **简体中文**
 
 [项目概述](#项目概述) · [方法架构](#方法架构) · [主要结果](#主要结果) · [基准评测](#rail-security-bench) · [快速开始](#快速开始)
 
@@ -74,13 +74,13 @@ RailMind 面向铁路基础设施巡检，将**多模态异常理解**与**文�
 
 | 组件 | 作用 | 使用指南 |
 | :--- | :--- | :--- |
-| 数据引擎 | 生成场景、类别、可见证据与风险描述 | [教师监督](docs/03_data_engine.md) |
-| NanoBanana | 同场景增强，审核后进入训练 | [数据增强](docs/04_augmentation.md) |
-| Qwen3-VL SFT | 面向铁路异常理解的领域适配 | [模型训练](docs/05_training.md) |
-| GRPO / GSPO | 可选的类别决策后训练 | [强化学习](docs/06_rl.md) |
-| GroundingDINO | 根据预测异常类别进行文本引导定位 | [推理与评测](docs/07_evaluation.md) |
+| 数据引擎 | 生成场景、类别、可见证据与风险描述 | [教师监督](docs/zh-CN/03_data_engine.md) |
+| NanoBanana | 同场景增强，审核后进入训练 | [数据增强](docs/zh-CN/04_augmentation.md) |
+| Qwen3-VL SFT | 面向铁路异常理解的领域适配 | [模型训练](docs/zh-CN/05_training.md) |
+| GRPO / GSPO | 可选的类别决策后训练 | [强化学习](docs/zh-CN/06_rl.md) |
+| GroundingDINO | 根据预测异常类别进行文本引导定位 | [推理与评测](docs/zh-CN/07_evaluation.md) |
 
-架构图概括研究流程，历史训练设置的恢复情况详见[复现审计](docs/08_reproducibility.md)。
+架构图概括研究流程，历史训练设置的恢复情况详见[复现审计](docs/zh-CN/08_reproducibility.md)。
 
 ## 主要结果
 
@@ -111,13 +111,13 @@ RailMind 使用 **8B 参数**多模态模型。论文同时报告，其分类性
 | 轨道 | 扣件缺失或开裂 |
 | 接触网杆 | 鸟巢等附着异物 |
 
-**评测重点：**识别异常类别、解释可见证据，并在铁路巡检场景中定位缺陷。实验细节见[评测协议](docs/07_evaluation.md)和[数据文档](docs/02_data.md)。
+**评测重点：**识别异常类别、解释可见证据，并在铁路巡检场景中定位缺陷。实验细节见[评测协议](docs/zh-CN/07_evaluation.md)和[数据文档](docs/zh-CN/02_data.md)。
 
 [基准项目](https://github.com/chaomacv/RAIL-SECURTTY-BENCH) · [项目网站](https://chaomacv.github.io/RAIL-SECURTTY-BENCH/)
 
 ### 定性结果
 
-首页图片沿用已公开的基准示例。当前源码发布中不包含经过核验的 RailMind 预测与真值对比案例。使用获得授权的本地数据时，可按[推理与评测指南](docs/07_evaluation.md)生成预测。
+首页图片沿用已公开的基准示例。当前源码发布中不包含经过核验的 RailMind 预测与真值对比案例。使用获得授权的本地数据时，可按[推理与评测指南](docs/zh-CN/07_evaluation.md)生成预测。
 
 定性比较应同时展示原图、预测类别与证据、预测框和经确认的真值，并包含成功与失败案例。下方离线 Demo 生成的是虚构工作流样例，不是真实铁路模型预测。
 
@@ -146,16 +146,16 @@ python -m unittest discover -s tests -v
 python scripts/check_release.py
 ```
 
-真实推理与训练需要单独配置环境、授权数据和模型权重。API 与训练命令默认预览参数，加 `--execute` 才实际执行。完整说明从[阅读指南](docs/00_reading_guide.md)开始。
+真实推理与训练需要单独配置环境、授权数据和模型权重。API 与训练命令默认预览参数，加 `--execute` 才实际执行。完整说明从[阅读指南](docs/zh-CN/00_reading_guide.md)开始。
 
 ## 文档导航
 
 | 入门 | 研究流程 | 评测与扩展阅读 |
 | :--- | :--- | :--- |
-| [阅读指南](docs/00_reading_guide.md) | [教师数据引擎](docs/03_data_engine.md) | [推理与评测](docs/07_evaluation.md) |
-| [完整工作流](docs/01_workflow.md) | [NanoBanana 数据增强](docs/04_augmentation.md) | [复现审计](docs/08_reproducibility.md) |
-| [数据规范](docs/02_data.md) | [SFT 与检测器训练](docs/05_training.md) | [SFT/RL 技能与工具](docs/09_sft_rl_skills_and_community.md) |
-| [English README](README.md) | [GRPO / GSPO](docs/06_rl.md) | [后训练论文路线](docs/10_post_training_paper_roadmap.md) |
+| [阅读指南](docs/zh-CN/00_reading_guide.md) | [教师数据引擎](docs/zh-CN/03_data_engine.md) | [推理与评测](docs/zh-CN/07_evaluation.md) |
+| [完整工作流](docs/zh-CN/01_workflow.md) | [NanoBanana 数据增强](docs/zh-CN/04_augmentation.md) | [复现审计](docs/zh-CN/08_reproducibility.md) |
+| [数据规范](docs/zh-CN/02_data.md) | [SFT 与检测器训练](docs/zh-CN/05_training.md) | [SFT/RL 技能与工具](docs/zh-CN/09_sft_rl_skills_and_community.md) |
+| [English README](README.md) | [GRPO / GSPO](docs/zh-CN/06_rl.md) | [后训练论文路线](docs/zh-CN/10_post_training_paper_roadmap.md) |
 
 <details>
 <summary><strong>仓库结构</strong></summary>
