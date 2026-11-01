@@ -1,65 +1,173 @@
-# RailMind：铁路图像分析、缺陷定位与训练复现
+<div align="center">
 
-本仓库围绕论文 **RailMind: Multimodal Reasoning for Railway Infrastructure Security**，将服务器上的研究代码整理为一个独立项目。
+<img src="docs/assets/railmind-header.svg" alt="RailMind — Railway infrastructure intelligence" width="100%">
 
-核心分工：**Qwen3-VL 负责识别缺陷类别、解释可见证据；GroundingDINO 负责精确定位。** Gemini 等教师模型生成领域监督数据，NanoBanana 根据背景图和缺陷参考图增强长尾数据；SFT 后可选择 GRPO/GSPO 强化类别一致性。
+# RailMind
 
-## 从这里开始
+**A Multimodal Framework for Railway Infrastructure Anomaly Understanding and Localization**
 
-第一次阅读本项目，建议先看 [辅助阅读指南：从目录到完整工作流](docs/00_reading_guide.md)，再进入各阶段教程。
+Understanding visual evidence. Identifying anomalies. Grounding railway defects.
 
-在仓库根目录，用 Python 3.10 及以上版本：
+[Project Page](https://chaomacv.github.io/RAIL-SECURTTY-BENCH/) · [Code](https://github.com/chaomacv/RailMind) · [Benchmark](https://github.com/chaomacv/RAIL-SECURTTY-BENCH) · [Documentation](docs/00_reading_guide.md) · [简体中文](README.zh-CN.md)
+
+![Python](https://img.shields.io/badge/Python-3.10%2B-244C75?style=flat-square)
+![Backbone](https://img.shields.io/badge/VLM-Qwen3--VL-244C75?style=flat-square)
+![Grounding](https://img.shields.io/badge/Localization-GroundingDINO-167D8D?style=flat-square)
+![Release](https://img.shields.io/badge/Release-Source_Code-167D8D?style=flat-square)
+
+**Paper:** final publication link pending · **Dataset:** not distributed · **Models:** weights not distributed
+
+[Overview](#overview) · [Method](#method-overview) · [Results](#main-results) · [Benchmark](#rail-security-bench) · [Quick Start](#quick-start)
+
+</div>
+
+## Overview
+
+RailMind connects **multimodal anomaly understanding** with **text-guided defect localization** for railway infrastructure inspection. Qwen3-VL identifies anomaly categories and describes visible evidence; GroundingDINO localizes the predicted categories in the image.
+
+The research workflow combines teacher-generated supervision, same-scene image augmentation, supervised fine-tuning, and optional GRPO/GSPO post-training. This repository provides a unified CLI, prompts, configuration templates, evaluation tools, tutorials, and selected training-framework source snapshots.
+
+- **Understand before localizing.** Use the VLM's predicted categories to guide the detector.
+- **Build domain supervision.** Generate descriptions with teacher models and augment rare defects with NanoBanana, followed by human review.
+- **Evaluate transparently.** Report classification and localization separately, with explicit class, scene, and instance aggregation.
+
+> Research manuscript: *RailMind: Multimodal Reasoning for Railway Infrastructure Security*. The public release contains method code; training data, evaluation data, model weights, and the private manuscript are not included.
+
+## Method Overview
+
+<img src="docs/assets/railmind-method.svg" alt="RailMind method: reviewed teacher supervision and augmentation feed Qwen3-VL SFT and optional RL; manually verified boxes train GroundingDINO; predicted categories guide localization." width="100%">
+
+**Training.** Gemini and other teacher models generate domain supervision. NanoBanana uses same-scene backgrounds and defect references to augment long-tailed data. Reviewed descriptions support Qwen3-VL SFT, while verified box annotations support detector training. GRPO/GSPO is an optional post-training stage.
+
+**Inference.** A railway image is processed by Qwen3-VL to obtain anomaly categories and visual evidence. GroundingDINO receives the image and **predicted category prompts**, producing bounding boxes in original-image pixel coordinates. Ground-truth categories are not used as inference prompts.
+
+| Component | Role | Implementation guide |
+| :--- | :--- | :--- |
+| Data engine | Teacher-generated scene, category, evidence, and risk descriptions | [Teacher supervision](docs/03_data_engine.md) |
+| NanoBanana | Same-scene augmentation with review before training | [Augmentation](docs/04_augmentation.md) |
+| Qwen3-VL SFT | Domain adaptation for anomaly understanding | [Training](docs/05_training.md) |
+| GRPO / GSPO | Optional category-focused post-training | [Reinforcement learning](docs/06_rl.md) |
+| GroundingDINO | Text-guided localization of predicted anomalies | [Inference & evaluation](docs/07_evaluation.md) |
+
+The diagram summarizes the workflow; it does not establish that every historical training setting has been recovered. See the [reproducibility audit](docs/08_reproducibility.md).
+
+## Main Results
+
+| Precision improvement | Recall improvement | Comparison |
+| :---: | :---: | :--- |
+| **+31.1 percentage points** | **+23.1 percentage points** | Relative to GLM-4.5V, as reported in project draft materials |
+
+**Result status.** These are reported research highlights, not measurements reproduced by the public release. The final experimental table, exact comparison setup, and metric aggregation must be verified against the final paper and experiment records. No absolute baseline scores or SFT/GRPO/GSPO ablation values are inferred from these deltas.
+
+### Reproduction scope
+
+| Setting | Recorded scale | What the release establishes |
+| :--- | :--- | :--- |
+| Paper description SFT | **20,931** supervision records | Paper-oriented recipe; exact historical launch not recovered |
+| Later mixed SFT | **24,265** records | Adds **3,334** box-output samples; a separate setting |
+| Detector training | **3,334** images / **10,613** instances | Source inventory and recovered configuration |
+| Paper RL | **3,134** prompts / **16** rollouts | Reconstructed recipes; original railway launch and exact prompt set unconfirmed |
+| Current benchmark inventory | **820** images / **2,083** annotations | Inventory audit; data remain private |
+
+Sources: [source inventory](docs/source_inventory.json), [reproducibility audit](docs/08_reproducibility.md).
+
+The release evaluation protocol, `railmind-release-v1`, distinguishes class-macro, scene-average, and instance-micro precision/recall/F1. Precision at a fixed IoU is not COCO AP. Use the [evaluation guide](docs/07_evaluation.md) before comparing historical paper tables.
+
+## Rail-Security-Bench
+
+A railway infrastructure evaluation benchmark spanning **six scenarios**, with a naturally uneven scene distribution.
+
+<img src="docs/assets/railmind-benchmark.svg" alt="Benchmark scene counts: Steel Bridge 275, Noise Barrier 227, Environment 128, Power Tower 91, Rail Track 88, Catenary Pole 11; total 820 images." width="100%">
+
+| Scenario | Images | Example anomaly types |
+| :--- | ---: | :--- |
+| Steel Bridge | 275 | Missing bolts, coating degradation, guardrail corrosion |
+| Noise Barrier | 227 | Corroded panels or columns, mortar deterioration |
+| Environment | 128 | Plastic film, waste, intrusive foreign objects |
+| Power Tower | 91 | Bird nests, foreign objects, loose antenna bolts |
+| Rail Track | 88 | Missing or cracked fasteners |
+| Catenary Pole | 11 | Foreign-object attachments such as bird nests |
+| **Total** | **820** | **2,083 annotated instances** |
+
+The legacy directory name contains `810`; the audited contents contain 820 images. An 810-image comparison subset must be derived explicitly by image IDs. See [data conventions](docs/02_data.md) and the [inventory](docs/source_inventory.json).
+
+[Benchmark project](https://github.com/chaomacv/RAIL-SECURTTY-BENCH) · [Project website](https://chaomacv.github.io/RAIL-SECURTTY-BENCH/)
+
+### Qualitative Results
+
+Real image-level predictions and ground-truth overlays are not included in this source release. For authorized local data, follow the [inference and evaluation guide](docs/07_evaluation.md) to produce predictions.
+
+A research comparison should pair the original image, predicted category and evidence, predicted boxes, and verified ground truth; it should include failure cases as well as successful detections. The offline demo below generates synthetic workflow samples, not railway model predictions.
+
+## Quick Start
+
+**Python 3.10+ · CPU demo · no GPU, model weights, or API key required**
 
 ```bash
+git clone https://github.com/chaomacv/RailMind.git
+cd RailMind
 python -m venv .venv
 source .venv/bin/activate
 python -m pip install -e .
+
 python -m railmind demo --output outputs/demo
+```
+
+On Windows, activate the environment with `.venv\Scripts\Activate.ps1` in PowerShell.
+
+The demo checks the manifest, review, SFT/RL export, augmentation planning, and evaluation workflow using generated examples. Its metrics are not paper results.
+
+To run the repository checks:
+
+```bash
 python -m unittest discover -s tests -v
 python scripts/check_release.py
 ```
 
-这个样例不需要 GPU、模型权重或 API Key。它验证图像清单、审核、SFT/RL 数据导出、增强计划和评测流程。图像是程序生成的示意样例，输出指标不是论文结果。
+Real model inference and training require separate environments, authorized data, and checkpoints. API and training commands preview their parameters by default; add `--execute` to perform the operation. Start with the [reading guide](docs/00_reading_guide.md).
 
-## 完整研究流程
+## Documentation
 
-| 阶段 | 输入 | 输出 | 文档 |
-|---|---|---|---|
-| 数据准备 | 图像、COCO 人工标注 | 带 split 和 SHA256 的统一 manifest | [数据规范](docs/02_data.md) |
-| 教师数据引擎 | 训练图像、铁路知识提示词 | 场景、类别、可见证据、风险描述 | [大模型标注](docs/03_data_engine.md) |
-| 数据增强 | 同场景背景与缺陷参考图 | 合成图像、生成记录、待审核标签 | [NanoBanana](docs/04_augmentation.md) |
-| 审核与训练 | 通过审核的文本或框标注 | Qwen SFT 数据、DINO ODVG/COCO 数据 | [SFT 与检测器](docs/05_training.md) |
-| 可选 RL | 合成图像的人工确认类别 | GRPO/GSPO 后训练模型 | [强化学习](docs/06_rl.md) |
-| 联合推理 | 图像、Qwen 类别输出 | GroundingDINO 像素坐标检测框 | [推理与评测](docs/07_evaluation.md) |
-| 实验比较 | 固定测试集与协议 | 分类/检测、消融和失败案例结果 | [复现边界](docs/08_reproducibility.md) |
-| 知识板块 | SFT/RL 后训练、社区工具链、常见风险 | 面向复用者的学习路线与工程清单 | [SFT/RL 技能图谱](docs/09_sft_rl_skills_and_community.md) |
-| 论文路线 | 经典与最新后训练论文、曲线解读、调参方法 | 从“会跑”到“会判断训练”的补课路径 | [后训练论文路线](docs/10_post_training_paper_roadmap.md) |
+| Start here | Research workflow | Evaluation & further reading |
+| :--- | :--- | :--- |
+| [Reading guide](docs/00_reading_guide.md) | [Teacher data engine](docs/03_data_engine.md) | [Inference & evaluation](docs/07_evaluation.md) |
+| [End-to-end workflow](docs/01_workflow.md) | [NanoBanana augmentation](docs/04_augmentation.md) | [Reproducibility audit](docs/08_reproducibility.md) |
+| [Data conventions](docs/02_data.md) | [SFT & detector training](docs/05_training.md) | [SFT/RL skills & tools](docs/09_sft_rl_skills_and_community.md) |
+| [中文项目说明](README.zh-CN.md) | [GRPO / GSPO](docs/06_rl.md) | [Post-training paper roadmap](docs/10_post_training_paper_roadmap.md) |
 
-已有训练图像可以直接进入教师标注流程；已有人工框标注可以进入检测器训练。合成图像先审核，再进入 SFT/RL。生成时指定的目标类别不自动等于真实标签。
+The detailed tutorials currently use Chinese.
 
-## 810 与 820 已核对
+<details>
+<summary><strong>Repository map</strong></summary>
 
-服务器的 `810_test_modified` 目录实际已有 **820 张图像、820 条 COCO 图像记录、2,083 个实例标注**，所有图像引用均存在。六个场景的数量与论文一致，最后增加的 10 张是接触网杆图像。
+| Path | Contents |
+| :--- | :--- |
+| `railmind/` | Unified workflow CLI and adapters |
+| `configs/` | SFT, RL, and detector recipes |
+| `prompts/` | Teacher and augmentation prompts |
+| `training/` | Railway reward plugin |
+| `third_party/` | Selected framework snapshots and upstream licenses |
+| `tests/` | Workflow and evaluation regression tests |
+| `docs/` | Tutorials, inventory, and reproduction boundaries |
 
-因此本仓库按实测的 **820 版本**记录当前基准，同时说明如何显式派生原 810 ID 子集。没有改动服务器原始数据，也不根据文件夹名称隐式删掉 10 张图像。证据在 [source_inventory.json](docs/source_inventory.json)。
+</details>
 
-## 两套 SFT 实验不要混用
+## Availability & Citation
 
-- 论文：2,264 + 5,497 + 13,170 = **20,931** 条描述监督数据。
-- 服务器后续混合训练：额外加入 **3,334** 条检测框输出样本，总计 **24,265**。
-- GroundingDINO：以 3,334 张 train2 图像为主，保留实际源码和配置。
-- RL：论文写明 3,134 个提示、16 个 rollout；当前没有恢复到原铁路专用启动脚本，发布的是明确标记的重建配置与类别奖励插件。
+- **Code:** available in this repository; licensing of the new workflow code is pending author selection.
+- **Data:** training/evaluation images, annotations, supervision samples, manifests, split IDs, and subset IDs are not distributed.
+- **Models:** model weights are not distributed.
+- **Paper & citation:** final publication URL and BibTeX are pending. Use the final publication record when available.
 
-## 发布内容与使用条件
+See [NOTICE.md](NOTICE.md) for source attribution and release scope. Third-party code retains its respective licenses.
 
-本仓库提供新的统一 CLI、教程、配置、提示词、必要训练框架源码快照及测试。原始图像、权重、加密文件、聊天记录、网站账号和 API Key 不进入源代码发布包。需要真实训练数据时，另行获取授权的数据或已有的私有复现包。
+## Acknowledgments
 
-API 和训练命令默认只检查和展示参数，加 `--execute` 才实际调用。CPU 样例与回归测试已作为发布验证目标；GPU 训练、真实增强 API 和论文指标复现需在相应环境中执行，不能由离线样例代替。
+RailMind builds on Qwen3-VL, Gemini, NanoBanana, GroundingDINO, the Open-GroundingDino implementation by Zuwei Long and Wei Li, LLaMA-Factory, and ms-swift. Upstream source details are recorded in [third_party/source_lock.json](third_party/source_lock.json).
 
-旧 `network_app0.11` 网站不是论文训练主线，也没有搬入包含账号和密钥的旧目录；远端调用通过新的环境变量配置接入。`bank`、`huawei` 等独立项目不属于本仓库。
+---
 
-阅读顺序：[辅助阅读指南](docs/00_reading_guide.md) → [流程](docs/01_workflow.md) → [数据](docs/02_data.md) → [标注](docs/03_data_engine.md) → [增强](docs/04_augmentation.md) → [训练](docs/05_training.md) → [RL](docs/06_rl.md) → [评测](docs/07_evaluation.md) → [SFT/RL 技能图谱](docs/09_sft_rl_skills_and_community.md) → [后训练论文路线](docs/10_post_training_paper_roadmap.md)。
-
-## 数据发布边界
-
-训练集和评测集均不上传，包括图像、标注、教师监督文本、SFT/RL 样本、manifest 和划分/子集 ID 清单。本仓库仅发布方法代码、通用提示词、配置模板及文档；离线示例在运行时生成虚构样例。
+<div align="center">
+<strong>RailMind</strong><br>
+Multimodal understanding and localization for railway infrastructure inspection.
+</div>
