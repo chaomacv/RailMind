@@ -56,11 +56,17 @@ The diagram summarizes the workflow; it does not establish that every historical
 
 ## Main Results
 
-| Precision improvement | Recall improvement | Comparison |
-| :---: | :---: | :--- |
-| **+31.1 percentage points** | **+23.1 percentage points** | Relative to GLM-4.5V, as reported in project draft materials |
+Results reported in *RailMind: Multimodal Reasoning for Railway Infrastructure Security*:
 
-**Result status.** These are reported research highlights, not measurements reproduced by the public release. The final experimental table, exact comparison setup, and metric aggregation must be verified against the final paper and experiment records. No absolute baseline scores or SFT/GRPO/GSPO ablation values are inferred from these deltas.
+| Task | Reported improvement | Comparison setting |
+| :--- | :--- | :--- |
+| Anomaly detection — mean precision | **~31%** | Over the strongest competing model, IoU = 0.5 |
+| Anomaly detection — mean recall | **~19%** | Over the strongest competing model, IoU = 0.5 |
+| Image-level defect classification — macro-F1 | **~37%** | Over the best same-scale open-source baseline |
+
+RailMind uses an **8B-parameter** multimodal model. The manuscript also reports classification performance comparable to the strongest closed-source Gemini model.
+
+**Reporting scope.** These approximate improvements follow the manuscript abstract's notation. They are not relabeled as percentage-point gains. Consult the paper's experimental tables for absolute scores, baselines, and aggregation definitions. The public workflow demo does not independently reproduce the paper's experiments.
 
 ### Reproduction scope
 
