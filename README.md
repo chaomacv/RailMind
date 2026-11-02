@@ -7,6 +7,7 @@
 **Chao Ma · Zhongwei Ren · Fanteng Meng · Jingxuan Xu · Tong Meng · Xiaojie Jin · Tao Ruan · Renshuai Tao · Yong Qin · Yunchao Wei**
 
 [![Project Page](https://img.shields.io/badge/Project-Page-76b900?style=flat-square)](https://chaomacv.github.io/RAIL-SECURTTY-BENCH/)
+[![Interactive Data Engine](https://img.shields.io/badge/Data-Engine-087f83?style=flat-square)](https://chaomacv.github.io/RAIL-SECURTTY-BENCH/data-engine/)
 [![Paper PDF](https://img.shields.io/badge/Paper-PDF-d95454?style=flat-square)](https://chaomacv.github.io/RAIL-SECURTTY-BENCH/assets/pdf/RailMind.pdf)
 
 <table>
