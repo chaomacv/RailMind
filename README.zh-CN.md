@@ -6,6 +6,7 @@
 
 **Chao Ma · Zhongwei Ren · Fanteng Meng · Jingxuan Xu · Tong Meng · Xiaojie Jin · Tao Ruan · Renshuai Tao · Yong Qin · Yunchao Wei**
 
+[![项目主页](https://img.shields.io/badge/Project-Page-76b900?style=flat-square)](https://chaomacv.github.io/RAIL-SECURTTY-BENCH/)
 [![交互式 Data Engine](https://img.shields.io/badge/Data-Engine-087f83?style=flat-square)](https://chaomacv.github.io/RAIL-SECURTTY-BENCH/data-engine/)
 
 <table>
